@@ -144,3 +144,67 @@ class SiteVisit {
         scheduledTime: j['scheduled_time'] as String?,
       );
 }
+
+class MaterialProduct {
+  MaterialProduct({
+    required this.id,
+    required this.category,
+    required this.name,
+    this.productCode,
+    this.colour,
+    this.colourHex,
+    this.finish,
+    this.sourceUrl,
+  });
+
+  final String id;
+  final String category;
+  final String name;
+  final String? productCode;
+  final String? colour;
+  final String? colourHex;
+  final String? finish;
+  final String? sourceUrl;
+
+  factory MaterialProduct.fromJson(Map<String, dynamic> j) => MaterialProduct(
+        id: j['id'] as String,
+        category: j['category'] as String,
+        name: j['name'] as String,
+        productCode: j['product_code'] as String?,
+        colour: j['colour'] as String?,
+        colourHex: j['colour_hex'] as String?,
+        finish: j['finish'] as String?,
+        sourceUrl: j['source_url'] as String?,
+      );
+}
+
+class MaterialSelection {
+  MaterialSelection({
+    required this.id,
+    required this.category,
+    required this.status,
+    this.area,
+    this.colour,
+    this.colourHex,
+    this.note,
+  });
+
+  final String id;
+  final String category;
+  final String status;
+  final String? area;
+  final String? colour;
+  final String? colourHex;
+  final String? note;
+
+  factory MaterialSelection.fromJson(Map<String, dynamic> j) =>
+      MaterialSelection(
+        id: j['id'] as String,
+        category: j['category'] as String,
+        status: j['status'] as String,
+        area: j['area'] as String?,
+        colour: j['colour'] as String?,
+        colourHex: j['colour_hex'] as String?,
+        note: j['note'] as String?,
+      );
+}

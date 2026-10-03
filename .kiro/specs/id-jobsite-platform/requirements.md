@@ -232,3 +232,30 @@ I can share feedback and the ID firm can showcase its service quality.
 4. WHEN any firm member (ID, ID_BOSS) views a reviewed job THEN the system SHALL display the review with a visible "Reviewed" tag and the rating.
 5. WHERE a user is not the job's client THE SYSTEM SHALL NOT allow submitting or editing that job's review (HTTP 403).
 6. WHERE reviews exist THE SYSTEM SHALL expose an aggregate average rating per ID and per firm for display.
+
+### Requirement 17 — Materials, Finishes & Supplier Catalogues
+**User Story:** As an ID, I want to browse supplier catalogues (laminates, tiles,
+worktops, paints, vinyl, etc.) and select materials & colours for a job, so that
+the client can review and approve the finishes.
+
+#### Acceptance Criteria
+1. THE SYSTEM SHALL organize materials by category (e.g. LAMINATE, TILE, WORKTOP, PAINT, VINYL, FLOORING, OTHER).
+2. WHERE a supplier is integrated THE SYSTEM SHALL expose that supplier's catalogue of products with name, product code, colour/finish, swatch image, and the supplier's source URL.
+3. THE SYSTEM SHALL support suppliers from Singapore and Malaysia via a pluggable supplier interface (e.g. ECO+ for vinyl, Nippon for paint), so new suppliers can be added without changing callers.
+4. WHERE a supplier provides no public API THE SYSTEM SHALL support catalogue data via periodic import or curated data, and SHALL record the source URL for attribution.
+5. WHEN an ID adds a material selection to a job THEN the system SHALL record the product, category, chosen colour/finish, target area/room, and the selecting user.
+6. WHEN a client opens a job THEN the system SHALL let them view the selected materials with swatches and (where available) a link to the supplier page.
+7. WHERE a client reviews a selection THE SYSTEM SHALL let them approve or request a change, notifying the ID.
+8. THE SYSTEM SHALL only reuse supplier imagery/data in line with each supplier's terms; where rights are unclear it SHALL link out to the supplier page rather than rehost.
+
+### Requirement 18 — 3D Model Viewing & Material Preview
+**User Story:** As a client, I want to view a 3D model of my renovation in the app
+with the chosen materials applied, so that I can understand the design before work
+proceeds.
+
+#### Acceptance Criteria
+1. WHEN an ID uploads a 3D model (glTF/GLB exported from their tool, e.g. SketchUp) THEN the system SHALL store it and associate it with the job.
+2. WHEN a client opens the 3D view THEN the system SHALL render the model with orbit/zoom controls in the app.
+3. WHERE material selections exist THE SYSTEM SHALL allow previewing a selected colour/finish on the model (where the model's surfaces are mapped).
+4. IF the device cannot render the model THEN the system SHALL degrade gracefully (e.g. show drawings/images) without crashing.
+5. THE SYSTEM SHALL treat full 3D authoring (modelling from scratch) as out of scope; models are authored in external tools and imported. The in-app experience is viewing + material preview.

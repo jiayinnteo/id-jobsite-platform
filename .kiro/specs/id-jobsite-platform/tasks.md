@@ -153,3 +153,24 @@ behind mockable adapters.
 - [x] 27. Test suites + CI
   - Unit (RBAC, state machines, AI never-auto-send), integration (ephemeral Postgres), webhook, Flutter widget/contract tests; CI pipeline (lint + test).
   - _Requirements: all (verification)_
+
+## Phase 10 — Materials, Supplier Catalogues & 3D Viewing
+
+- [x] 28. Materials + supplier catalogue backend
+  - Models: MaterialSupplier, MaterialProduct, MaterialSelection; MODEL_3D document type.
+  - Pluggable `SupplierCatalogue` adapters (ECO+ vinyl, Nippon paint, Lamitak, Niro, Hafary) across SG + MY; sync into DB; list products by category/supplier.
+  - Per-job selections: ID proposes (notifies client); client approves / requests change; audit + notifications. Alembic 0005.
+  - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8_
+
+- [x] 29. Materials Flutter UI
+  - Materials tab (per-job selections with colour swatches); catalogue browser by category with supplier source links; add-selection flow; client approve / request-change.
+  - _Requirements: 17.1, 17.2, 17.5, 17.6, 17.7_
+
+- [x] 30. In-app 3D model viewing
+  - `ModelViewerBody`/`ModelViewerScreen` (model_viewer_plus) renders uploaded glTF/GLB with orbit + zoom; graceful empty state; wired as a job-detail 3D tab fed by a MODEL_3D document.
+  - Full 3D authoring intentionally out of scope — models imported from external tools (e.g. SketchUp).
+  - _Requirements: 18.1, 18.2, 18.4, 18.5_
+
+- [ ] 31. 3D material preview (future)
+  - Map selected colours/finishes onto model surfaces for live preview.
+  - _Requirements: 18.3_

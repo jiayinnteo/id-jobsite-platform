@@ -9,6 +9,8 @@ import '../../widgets/status_chip.dart';
 import '../auth/auth_controller.dart';
 import '../chat/job_chat_tab.dart';
 import '../defects/defects_tab.dart';
+import '../materials/materials_tab.dart';
+import '../model3d/model_viewer_screen.dart';
 import '../oversight/oversight_review_sheet.dart';
 import '../reviews/leave_review_sheet.dart';
 import 'documents_tab.dart';
@@ -25,7 +27,7 @@ class JobDetailScreen extends ConsumerWidget {
     final job = ref.watch(jobProvider(jobId));
 
     return DefaultTabController(
-      length: 5,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: job.when(
@@ -38,6 +40,8 @@ class JobDetailScreen extends ConsumerWidget {
             tabs: [
               Tab(text: 'Overview'),
               Tab(text: 'Documents'),
+              Tab(text: 'Materials'),
+              Tab(text: '3D'),
               Tab(text: 'Defects'),
               Tab(text: 'Photos'),
               Tab(text: 'Chat'),
@@ -59,6 +63,8 @@ class JobDetailScreen extends ConsumerWidget {
                 status: j.status,
               ),
               DocumentsTab(jobId: jobId),
+              MaterialsTab(jobId: jobId),
+              _Model3dTab(jobId: jobId),
               DefectsTab(jobId: jobId),
               PhotosTab(jobId: jobId),
               JobChatTab(jobId: jobId),
@@ -172,6 +178,35 @@ class _Overview extends ConsumerWidget {
             },
           ),
       ],
+    );
+  }
+}
+
+/// Finds the job's uploaded 3D model (if any) and shows the in-app viewer.
+class _Model3dTab extends ConsumerWidget {
+  const _Model3dTab({required this.jobId});
+  final String jobId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final docs = ref.watch(documentsProvider(jobId));
+    return docs.when(
+      loading: () => const LoadingState(),
+      error: (_, __) => const ModelViewerBody(modelUrl: null),
+      data: (items) {
+        final models = items.where((d) => d.type == 'MODEL_3D').toList();
+        if (models.isEmpty) {
+          return const ModelViewerBody(modelUrl: null);
+        }
+        final model = models.first;
+        return FutureBuilder<String>(
+          future: ref.read(jobsRepositoryProvider).documentDownloadUrl(model.id),
+          builder: (context, snap) {
+            if (!snap.hasData) return const LoadingState();
+            return ModelViewerBody(modelUrl: snap.data, title: model.title);
+          },
+        );
+      },
     );
   }
 }

@@ -14,6 +14,7 @@ class DocumentType(str, enum.Enum):
     QUOTATION = "QUOTATION"
     DRAWING_2D = "DRAWING_2D"
     DRAWING_3D = "DRAWING_3D"
+    MODEL_3D = "MODEL_3D"  # glTF/GLB model for in-app 3D viewing
     SCHEDULE = "SCHEDULE"
     OTHER = "OTHER"
 

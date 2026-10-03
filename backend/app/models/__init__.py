@@ -31,6 +31,14 @@ from app.models.job import (  # noqa: F401
     OversightFlag,
     OversightReview,
 )
+from app.models.material import (  # noqa: F401
+    Country,
+    MaterialCategory,
+    MaterialProduct,
+    MaterialSelection,
+    MaterialSupplier,
+    SelectionStatus,
+)
 from app.models.schedule import (  # noqa: F401
     CalendarEventLink,
     CalendarLink,
@@ -76,4 +84,10 @@ __all__ = [
     "MessageDirection",
     "AIDraft",
     "DraftStatus",
+    "MaterialSupplier",
+    "MaterialProduct",
+    "MaterialSelection",
+    "MaterialCategory",
+    "Country",
+    "SelectionStatus",
 ]

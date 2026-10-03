@@ -10,6 +10,7 @@ from app.api import defects as defects_api
 from app.api import documents as documents_api
 from app.api import integrations as integrations_api
 from app.api import jobs as jobs_api
+from app.api import materials as materials_api
 from app.api import notifications as notifications_api
 from app.api import schedule as schedule_api
 from app.api import webhooks as webhooks_api
@@ -44,6 +45,9 @@ app.include_router(chat_api.chat_router, prefix=_p)
 app.include_router(ai_api.router, prefix=_p)
 app.include_router(webhooks_api.router, prefix=_p)
 app.include_router(integrations_api.router, prefix=_p)
+app.include_router(materials_api.suppliers_router, prefix=_p)
+app.include_router(materials_api.job_materials_router, prefix=_p)
+app.include_router(materials_api.selections_router, prefix=_p)
 # WebSocket route (not under the REST prefix).
 app.include_router(chat_api.ws_router)
 
