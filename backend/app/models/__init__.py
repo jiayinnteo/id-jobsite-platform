@@ -1,5 +1,14 @@
 """ORM models. Importing this package registers all models on Base.metadata."""
 
+from app.models.chat import (  # noqa: F401
+    AIDraft,
+    Channel,
+    Conversation,
+    DraftStatus,
+    Message,
+    MessageDirection,
+    MessageRead,
+)
 from app.models.defect import (  # noqa: F401
     ALLOWED_TRANSITIONS,
     Defect,
@@ -60,4 +69,11 @@ __all__ = [
     "VisitWorker",
     "CalendarLink",
     "CalendarEventLink",
+    "Conversation",
+    "Message",
+    "MessageRead",
+    "Channel",
+    "MessageDirection",
+    "AIDraft",
+    "DraftStatus",
 ]

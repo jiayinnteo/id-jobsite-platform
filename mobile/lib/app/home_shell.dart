@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/ai/ai_inbox_screen.dart';
+import '../features/auth/auth_controller.dart';
 import '../features/demo/sample_job_screen.dart';
+import '../features/notifications/notifications_screen.dart';
 import '../features/schedule/contractor_work_screen.dart';
 import 'user_role.dart';
 
@@ -15,15 +19,15 @@ class NavDest {
 
 /// Per-role bottom-navigation shell. Every top-level area is one tap away
 /// (max 5 destinations), per the design system.
-class HomeShell extends StatefulWidget {
+class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key, required this.role});
   final UserRole role;
 
   @override
-  State<HomeShell> createState() => _HomeShellState();
+  ConsumerState<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
 
   List<NavDest> get _destinations {
@@ -35,16 +39,16 @@ class _HomeShellState extends State<HomeShell> {
               SampleJobScreen(mode: 'boss')),
           NavDest(Icons.reviews_outlined, 'Reviews',
               _Placeholder('Client reviews & average ratings')),
-          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
-          NavDest(Icons.notifications_none, 'Alerts', _Placeholder('Notifications')),
+          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Open a job to chat')),
+          NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
         ];
       case UserRole.id:
         return const [
           NavDest(Icons.home_outlined, 'Home', _Placeholder('ID Dashboard')),
           NavDest(Icons.work_outline, 'Jobs', _Placeholder('Jobs')),
-          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
-          NavDest(Icons.smart_toy_outlined, 'AI Inbox', _Placeholder('AI Review Inbox')),
-          NavDest(Icons.notifications_none, 'Alerts', _Placeholder('Notifications')),
+          NavDest(Icons.smart_toy_outlined, 'AI Inbox', AiInboxScreen()),
+          NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
+          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Open a job to chat')),
         ];
       case UserRole.client:
         return const [
@@ -59,15 +63,15 @@ class _HomeShellState extends State<HomeShell> {
           NavDest(Icons.home_outlined, 'Home', _Placeholder('Contractor Dashboard')),
           NavDest(Icons.assignment_outlined, 'Work', ContractorWorkScreen()),
           NavDest(Icons.event_outlined, 'Schedule', _Placeholder('Schedule')),
-          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
-          NavDest(Icons.notifications_none, 'Alerts', _Placeholder('Notifications')),
+          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Open a job to chat')),
+          NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
         ];
       case UserRole.worker:
         return const [
           NavDest(Icons.home_outlined, 'Home', _Placeholder('Worker Dashboard')),
           NavDest(Icons.event_available_outlined, 'Visits', _Placeholder('My Site Visits')),
           NavDest(Icons.photo_camera_outlined, 'Photos', _Placeholder('Upload Photos')),
-          NavDest(Icons.notifications_none, 'Alerts', _Placeholder('Notifications')),
+          NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
         ];
     }
   }
@@ -76,7 +80,17 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final dests = _destinations;
     return Scaffold(
-      appBar: AppBar(title: Text(dests[_index].label)),
+      appBar: AppBar(
+        title: Text(dests[_index].label),
+        actions: [
+          IconButton(
+            tooltip: 'Sign out',
+            icon: const Icon(Icons.logout_rounded),
+            onPressed: () =>
+                ref.read(authControllerProvider.notifier).logout(),
+          ),
+        ],
+      ),
       body: dests[_index].body,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,

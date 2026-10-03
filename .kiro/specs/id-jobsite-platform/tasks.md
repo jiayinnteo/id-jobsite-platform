@@ -102,56 +102,58 @@ behind mockable adapters.
 
 ## Phase 5 — Notifications
 
-- [ ] 17. In-app notifications + PushPort
+- [x] 17. In-app notifications + PushPort
   - Notification fan-out on all notifiable events; unread count; mark-read + deep link; `PushPort` (FCM/APNs) with mock.
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 18. Flutter notifications UI + push registration
-  - Notification center, unread badge, device token registration, deep-link handling.
+- [~] 18. Flutter notifications UI + push registration
+  - [x] Notification center screen (list, unread styling, tap-to-read) wired into every role's Alerts tab.
+  - [ ] Unread badge on the nav icon + device push-token registration (needs FCM project).
   - _Requirements: 8.2, 8.3, 8.4_
 
 ## Phase 6 — Google Calendar (bidirectional)
 
-- [ ] 19. CalendarPort + Google OAuth
+- [x] 19. CalendarPort + Google OAuth
   - OAuth connect/callback; secure token storage; disconnect/revoke.
   - _Requirements: 9.1, 9.4, 13.2_
 
-- [ ] 20. Two-way schedule sync worker
+- [x] 20. Two-way schedule sync worker
   - App→Google on create/update; Google→app via sync tokens; retry with backoff; surface persistent failures.
   - _Requirements: 9.2, 9.3, 9.5_
 
 ## Phase 7 — In-App Chat (First-Class)
 
-- [ ] 21. Conversation + message API with realtime delivery
+- [x] 21. Conversation + message API with realtime delivery
   - Auto-create a conversation per job; send/list messages; per-member read state; attachments + entity links.
   - WebSocket endpoint with Redis pub/sub fan-out; notify offline members; 403 for non-members.
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
 
-- [ ] 22. Flutter chat UI
-  - Conversation screen (history newest-at-bottom), live updates, send message, attach photo/document, deep-link to defect/visit, unread markers.
+- [~] 22. Flutter chat UI
+  - [x] Conversation screen (history newest-at-bottom, send message, WhatsApp-channel badge) + chat repository.
+  - [ ] Live WebSocket updates + attach photo/document + deep-link entry from a job (needs job-detail navigation).
   - _Requirements: 11.2, 11.3, 11.4, 11.5_
 
 ## Phase 8 — Agentic AI (Human-in-the-Loop) & WhatsApp
 
-- [ ] 23. LLMPort + AI draft lifecycle
+- [x] 23. LLMPort + AI draft lifecycle
   - Provider-agnostic `LLMPort` (real + mock); build job context; create `AIDraft(PENDING_REVIEW)`; never auto-send.
   - Edit/approve/reject endpoints; audit who approved. Works for both in-app chat and WhatsApp replies.
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 11.7_
 
-- [ ] 24. WhatsAppPort + webhook + chat bridge
+- [x] 24. WhatsAppPort + webhook + chat bridge
   - Webhook verification + inbound receive → conversation/message, mirrored into in-app chat; send in-app/approved messages out to WhatsApp; idempotent de-dup by channel + external id; mock/disabled mode; failure retry.
   - _Requirements: 11.8, 11.9, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 25. Flutter AI review inbox
-  - Pending-review list; edit draft; approve/reject; conversation view.
+- [x] 25. Flutter AI review inbox
+  - Pending-review list; edit draft inline; approve-&-send / reject; empty state. Wired into the ID "AI Inbox" tab.
   - _Requirements: 10.2, 10.3, 10.4, 10.5_
 
 ## Phase 9 — Hardening & Audit
 
-- [ ] 26. Audit log + centralized error handling
+- [x] 26. Audit log + centralized error handling
   - Append-only `AuditLog` for all state-changing actions; structured error responses; input validation everywhere.
   - _Requirements: 13.1, 13.3_
 
-- [ ] 27. Test suites + CI
+- [x] 27. Test suites + CI
   - Unit (RBAC, state machines, AI never-auto-send), integration (ephemeral Postgres), webhook, Flutter widget/contract tests; CI pipeline (lint + test).
   - _Requirements: all (verification)_
