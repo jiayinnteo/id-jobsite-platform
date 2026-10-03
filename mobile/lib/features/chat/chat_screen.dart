@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../../data/api_client.dart';
 import '../../data/chat_repository.dart';
 import '../../widgets/states.dart';
 
@@ -20,18 +24,49 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   List<Map<String, dynamic>> _messages = [];
   bool _loading = true;
   bool _sending = false;
+  WebSocketChannel? _channel;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _connectLive();
   }
 
   @override
   void dispose() {
     _input.dispose();
     _scroll.dispose();
+    _channel?.sink.close();
     super.dispose();
+  }
+
+  /// Subscribe to the conversation WebSocket for realtime message delivery.
+  void _connectLive() {
+    try {
+      final base = kApiBaseUrl
+          .replaceFirst('http://', 'ws://')
+          .replaceFirst('https://', 'wss://')
+          .replaceFirst('/api/v1', '');
+      final uri = Uri.parse('$base/ws/conversations/${widget.conversationId}');
+      _channel = WebSocketChannel.connect(uri);
+      _channel!.stream.listen((event) {
+        try {
+          final msg = jsonDecode(event as String) as Map<String, dynamic>;
+          if (_messages.any((m) => m['id'] == msg['id'])) return; // de-dup
+          setState(() => _messages = [..._messages, msg]);
+          _scrollToBottom();
+        } catch (_) {/* ignore malformed frames */}
+      }, onError: (_) {/* live updates are best-effort */});
+    } catch (_) {/* fall back to REST-only */}
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) {
+        _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      }
+    });
   }
 
   Future<void> _load() async {
@@ -54,12 +89,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           .read(chatRepositoryProvider)
           .sendMessage(widget.conversationId, text);
       _input.clear();
-      setState(() => _messages = [..._messages, msg]);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scroll.hasClients) {
-          _scroll.jumpTo(_scroll.position.maxScrollExtent);
-        }
-      });
+      if (!_messages.any((m) => m['id'] == msg['id'])) {
+        setState(() => _messages = [..._messages, msg]);
+      }
+      _scrollToBottom();
     } finally {
       if (mounted) setState(() => _sending = false);
     }

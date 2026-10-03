@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/auth_controller.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
+import '../features/defects/defect_detail_screen.dart';
+import '../features/jobs/job_detail_screen.dart';
 import 'home_shell.dart';
 import 'user_role.dart';
 
@@ -32,6 +34,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/home/:role',
         builder: (context, state) =>
             HomeShell(role: _roleFromName(state.pathParameters['role'])),
+      ),
+      GoRoute(
+        path: '/job/:id',
+        builder: (context, state) =>
+            JobDetailScreen(jobId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/defect/:id',
+        builder: (context, state) =>
+            DefectDetailScreen(defectId: state.pathParameters['id']!),
       ),
     ],
   );

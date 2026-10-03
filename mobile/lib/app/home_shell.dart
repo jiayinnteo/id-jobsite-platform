@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/chat_repository.dart';
 import '../features/ai/ai_inbox_screen.dart';
 import '../features/auth/auth_controller.dart';
-import '../features/demo/sample_job_screen.dart';
+import '../features/jobs/jobs_list_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/schedule/contractor_work_screen.dart';
+import '../features/schedule/worker_visits_screen.dart';
 import 'user_role.dart';
+
+/// Unread notification count for the Alerts badge.
+final unreadCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  return ref.read(chatRepositoryProvider).unreadCount();
+});
 
 /// A navigation destination for the per-role bottom bar.
 class NavDest {
@@ -34,51 +41,46 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     switch (widget.role) {
       case UserRole.idBoss:
         return const [
-          NavDest(Icons.insights_outlined, 'Overview', _Placeholder('Firm Overview')),
-          NavDest(Icons.folder_open_outlined, 'Firm Jobs',
-              SampleJobScreen(mode: 'boss')),
-          NavDest(Icons.reviews_outlined, 'Reviews',
-              _Placeholder('Client reviews & average ratings')),
-          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Open a job to chat')),
+          NavDest(Icons.folder_open_outlined, 'Firm Jobs', JobsListScreen()),
+          NavDest(Icons.smart_toy_outlined, 'AI Inbox', AiInboxScreen()),
           NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
         ];
       case UserRole.id:
         return const [
-          NavDest(Icons.home_outlined, 'Home', _Placeholder('ID Dashboard')),
-          NavDest(Icons.work_outline, 'Jobs', _Placeholder('Jobs')),
+          NavDest(Icons.work_outline, 'Jobs', JobsListScreen()),
           NavDest(Icons.smart_toy_outlined, 'AI Inbox', AiInboxScreen()),
           NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
-          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Open a job to chat')),
         ];
       case UserRole.client:
         return const [
-          NavDest(Icons.home_outlined, 'Home', _Placeholder('Client Dashboard')),
-          NavDest(Icons.description_outlined, 'Project', _Placeholder('Documents & Drawings')),
-          NavDest(Icons.report_problem_outlined, 'Defects', _Placeholder('Defects')),
-          NavDest(Icons.star_outline, 'Review', SampleJobScreen(mode: 'client')),
-          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
+          NavDest(Icons.work_outline, 'My Project', JobsListScreen()),
+          NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
         ];
       case UserRole.contractor:
         return const [
-          NavDest(Icons.home_outlined, 'Home', _Placeholder('Contractor Dashboard')),
           NavDest(Icons.assignment_outlined, 'Work', ContractorWorkScreen()),
-          NavDest(Icons.event_outlined, 'Schedule', _Placeholder('Schedule')),
-          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Open a job to chat')),
+          NavDest(Icons.work_outline, 'Jobs', JobsListScreen()),
           NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
         ];
       case UserRole.worker:
         return const [
-          NavDest(Icons.home_outlined, 'Home', _Placeholder('Worker Dashboard')),
-          NavDest(Icons.event_available_outlined, 'Visits', _Placeholder('My Site Visits')),
-          NavDest(Icons.photo_camera_outlined, 'Photos', _Placeholder('Upload Photos')),
+          NavDest(Icons.event_available_outlined, 'Visits', WorkerVisitsScreen()),
+          NavDest(Icons.work_outline, 'Jobs', JobsListScreen()),
           NavDest(Icons.notifications_none, 'Alerts', NotificationsScreen()),
         ];
     }
   }
 
+  /// The index of the Alerts (notifications) tab, for the unread badge.
+  int get _alertsIndex =>
+      _destinations.indexWhere((d) => d.label == 'Alerts');
+
   @override
   Widget build(BuildContext context) {
     final dests = _destinations;
+    final unread = ref.watch(unreadCountProvider).valueOrNull ?? 0;
+    final alertsIndex = _alertsIndex;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(dests[_index].label),
@@ -94,30 +96,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       body: dests[_index].body,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: (i) {
+          setState(() => _index = i);
+          if (i == alertsIndex) ref.invalidate(unreadCountProvider);
+        },
         destinations: [
-          for (final d in dests)
-            NavigationDestination(icon: Icon(d.icon), label: d.label),
+          for (var i = 0; i < dests.length; i++)
+            NavigationDestination(
+              icon: (i == alertsIndex && unread > 0)
+                  ? Badge(label: Text('$unread'), child: Icon(dests[i].icon))
+                  : Icon(dests[i].icon),
+              label: dests[i].label,
+            ),
         ],
-      ),
-    );
-  }
-}
-
-class _Placeholder extends StatelessWidget {
-  const _Placeholder(this.title);
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(
-          '$title\n\nComing soon',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
       ),
     );
   }

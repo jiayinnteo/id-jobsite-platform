@@ -45,6 +45,7 @@ class DefectOut(BaseModel):
     created_by: uuid.UUID
     assigned_contractor_id: uuid.UUID | None
     created_at: datetime
+    rectification_id: uuid.UUID | None = None
 
 
 class DecisionRequest(BaseModel):

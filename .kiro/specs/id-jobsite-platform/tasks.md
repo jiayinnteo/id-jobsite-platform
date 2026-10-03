@@ -57,9 +57,8 @@ behind mockable adapters.
   - Upload quotation (xlsx/pdf), 2D/3D drawings, schedule; versioning; type/size validation.
   - _Requirements: 3.1, 3.2, 3.4, 3.5, 3.6, 13.4_
 
-- [~] 10. Flutter jobs + document screens (+ boss oversight UI)
-  - [x] API client (dio + token refresh) + jobs repository; ID_BOSS "Review job" oversight sheet (Needs Attention / Approved + note), wired in a preview screen.
-  - [ ] Full job list/detail + participant management + document upload/viewer screens against live data (needs Flutter auth from task 7).
+- [x] 10. Flutter jobs + document screens (+ boss oversight UI)
+  - Live job list → job detail (tabbed: Overview/Documents/Defects/Photos/Chat); documents tab with pre-signed download; ID_BOSS "Review job" oversight + client review actions on the Overview tab.
   - _Requirements: 2.3, 3.3, 15.1, 15.3_
 
 ## Phase 3 — Defects, Rectification & Photos (core differentiator)
@@ -78,9 +77,8 @@ behind mockable adapters.
   - Upload photo attached to job/defect/visit; metadata; permission-scoped gallery; retry-safe.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [~] 14. Flutter defect + photo + accept/reject UI
-  - [x] Accept/Reject action bar (reject requires a reason) + client review sheet, wired in a preview screen with the warm design system.
-  - [ ] Defect create with camera capture + defect detail (history & photos) + photo gallery against live data (needs Flutter auth from task 7).
+- [x] 14. Flutter defect + photo + accept/reject UI
+  - Defects tab + report-defect sheet; defect detail (status history, role-aware status advance, client Accept/Reject with reason); shared photo gallery with camera/gallery upload via pre-signed URLs.
   - _Requirements: 4.1, 4.6, 5.1, 5.2, 5.3, 7.1, 7.3_
 
 - [x] 14b. Client reviews & ratings (API + Flutter)
@@ -95,9 +93,8 @@ behind mockable adapters.
   - On every create/update, enqueue `CalendarPort.upsert_event` for all linked participants (auto Google Calendar linking); store `google_event_id` per user for idempotent updates. CalendarPort has a mock until OAuth lands in Phase 6.
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 9.2, 9.2a_
 
-- [~] 16. Flutter contractor + schedule UI
-  - [x] Contractor work list (live API) + schedule-visit sheet (date/time, calendar auto-link note); schedule repository.
-  - [ ] Worker's assigned-visit view + full job schedule display screen.
+- [x] 16. Flutter contractor + schedule UI
+  - Contractor work list + schedule-visit sheet (date/time, calendar auto-link note); worker's assigned-visit screen.
   - _Requirements: 6.1, 6.2, 6.5_
 
 ## Phase 5 — Notifications
@@ -107,8 +104,8 @@ behind mockable adapters.
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
 - [~] 18. Flutter notifications UI + push registration
-  - [x] Notification center screen (list, unread styling, tap-to-read) wired into every role's Alerts tab.
-  - [ ] Unread badge on the nav icon + device push-token registration (needs FCM project).
+  - [x] Notification center (list, unread styling, tap-to-read) + unread **badge** on the Alerts nav icon.
+  - [ ] Device push-token registration (needs a real FCM/APNs project).
   - _Requirements: 8.2, 8.3, 8.4_
 
 ## Phase 6 — Google Calendar (bidirectional)
@@ -128,9 +125,8 @@ behind mockable adapters.
   - WebSocket endpoint with Redis pub/sub fan-out; notify offline members; 403 for non-members.
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
 
-- [~] 22. Flutter chat UI
-  - [x] Conversation screen (history newest-at-bottom, send message, WhatsApp-channel badge) + chat repository.
-  - [ ] Live WebSocket updates + attach photo/document + deep-link entry from a job (needs job-detail navigation).
+- [x] 22. Flutter chat UI
+  - Conversation screen (history, send, WhatsApp-channel badge) with **live WebSocket** updates, reached from the job-detail Chat tab.
   - _Requirements: 11.2, 11.3, 11.4, 11.5_
 
 ## Phase 8 — Agentic AI (Human-in-the-Loop) & WhatsApp

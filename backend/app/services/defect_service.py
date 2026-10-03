@@ -77,18 +77,41 @@ async def create_defect(
     return defect
 
 
-async def list_defects(db: AsyncSession, user: User, job_id: uuid.UUID) -> list[Defect]:
+async def _latest_rectification_id(db: AsyncSession, defect_id: uuid.UUID):
+    return await db.scalar(
+        select(Rectification.id)
+        .where(Rectification.defect_id == defect_id)
+        .order_by(Rectification.created_at.desc())
+    )
+
+
+async def defect_out_dict(db: AsyncSession, defect: Defect) -> dict:
+    return {
+        "id": defect.id,
+        "job_id": defect.job_id,
+        "title": defect.title,
+        "description": defect.description,
+        "location": defect.location,
+        "status": defect.status,
+        "created_by": defect.created_by,
+        "assigned_contractor_id": defect.assigned_contractor_id,
+        "created_at": defect.created_at,
+        "rectification_id": await _latest_rectification_id(db, defect.id),
+    }
+
+
+async def list_defects(db: AsyncSession, user: User, job_id: uuid.UUID) -> list[dict]:
     job = await get_job_or_404(db, job_id)
     await authorize_job_access(db, user, job)
     rows = await db.scalars(select(Defect).where(Defect.job_id == job_id))
-    return list(rows.all())
+    return [await defect_out_dict(db, d) for d in rows.all()]
 
 
-async def get_defect(db: AsyncSession, user: User, defect_id: uuid.UUID) -> Defect:
+async def get_defect(db: AsyncSession, user: User, defect_id: uuid.UUID) -> dict:
     defect = await _get_defect(db, defect_id)
     job = await get_job_or_404(db, defect.job_id)
     await authorize_job_access(db, user, job)
-    return defect
+    return await defect_out_dict(db, defect)
 
 
 async def get_history(
@@ -105,7 +128,7 @@ async def get_history(
 
 async def assign_defect(
     db: AsyncSession, user: User, defect_id: uuid.UUID, data: DefectAssign
-) -> Defect:
+) -> dict:
     defect = await _get_defect(db, defect_id)
     job = await get_job_or_404(db, defect.job_id)
     if user.role not in (UserRole.ID, UserRole.ID_BOSS):
@@ -122,7 +145,7 @@ async def assign_defect(
     )
     await db.commit()
     await db.refresh(defect)
-    return defect
+    return await defect_out_dict(db, defect)
 
 
 async def _transition(
@@ -170,7 +193,7 @@ async def update_status(
     )
     await db.commit()
     await db.refresh(defect)
-    return defect
+    return await defect_out_dict(db, defect)
 
 
 async def decide_rectification(

@@ -31,28 +31,34 @@ void main() {
     expect(find.text('Email'), findsOneWidget);
   });
 
-  testWidgets('ID home shell renders a 5-item bottom nav', (tester) async {
+  testWidgets('ID shell shows Jobs, AI Inbox and Alerts', (tester) async {
     await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.id)));
-    await tester.pumpAndSettle();
+    await tester.pump(); // nav bar renders synchronously
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.text('Jobs'), findsWidgets);
-    expect(find.text('AI Inbox'), findsOneWidget);
+    expect(find.text('AI Inbox'), findsWidgets);
+    expect(find.text('Alerts'), findsWidgets);
   });
 
-  testWidgets('ID_BOSS shell exposes firm oversight + reviews', (tester) async {
+  testWidgets('ID_BOSS shell exposes Firm Jobs', (tester) async {
     await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.idBoss)));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('Firm Jobs'), findsWidgets);
-    expect(find.text('Reviews'), findsWidgets);
   });
 
-  testWidgets('Contractor shell exposes Work and Schedule', (tester) async {
+  testWidgets('Contractor shell exposes Work', (tester) async {
     await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.contractor)));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('Work'), findsWidgets);
-    expect(find.text('Schedule'), findsWidgets);
+  });
+
+  testWidgets('Worker shell exposes Visits', (tester) async {
+    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.worker)));
+    await tester.pump();
+
+    expect(find.text('Visits'), findsWidgets);
   });
 }
