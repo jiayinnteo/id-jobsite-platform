@@ -6,38 +6,38 @@ behind mockable adapters.
 
 ## Phase 0 — Project Scaffolding & Dev Environment
 
-- [ ] 1. Set up the backend project skeleton and tooling
+- [x] 1. Set up the backend project skeleton and tooling
   - Create FastAPI app structure (routers, services, repositories, adapters, core/config).
   - Add dependency management (pyproject/uv), ruff + black, pytest.
   - Add `app/main.py` with a `/health` endpoint and settings loaded from env.
   - _Requirements: 13.2, 13.5_
 
-- [ ] 2. Set up local infrastructure with docker-compose
+- [x] 2. Set up local infrastructure with docker-compose
   - Services: api, postgres, redis, minio (S3), worker.
   - Add `.env.example` enumerating DB, S3, JWT, LLM, WhatsApp, Google keys.
   - _Requirements: 13.2, 13.4_
 
-- [ ] 3. Set up the Flutter app skeleton + design system
+- [x] 3. Set up the Flutter app skeleton + design system
   - Initialize Flutter project; add Riverpod, dio, go_router, secure storage, image_picker, google_fonts.
   - Create app shell, routing, and a configurable API base URL.
   - Build the shared design system: warm Material 3 theme (light + dark) in `lib/theme/`, and reusable widgets (`AppScaffold`, `AppButton`, `AppCard`, `StatusChip`, `EmptyState`, `LoadingState`, `ConfirmDialog`) in `lib/widgets/`.
   - Add per-role bottom-navigation shell.
   - _Requirements: 1.2, 7.1, 14.1, 14.2, 14.3, 14.4, 14.6_
 
-- [ ] 4. Database foundation
+- [x] 4. Database foundation
   - Configure SQLAlchemy 2.x + Alembic; create the initial migration for core tables.
   - _Requirements: 2.1, 13.1_
 
 ## Phase 1 — Authentication & RBAC
 
-- [ ] 5. Implement user model, registration, and login
+- [x] 5. Implement user model, registration, and login
   - Argon2 password hashing; JWT access + refresh issuance; refresh rotation.
   - Register with role (ID/Client/Contractor/Worker); login; refresh; password reset request.
   - _Requirements: 1.1, 1.2, 1.3, 1.6_
 
-- [ ] 6. Implement RBAC + job-membership authorization
-  - `authorize(user, job, action)` dependency; 401 on expired, 403 on non-member.
-  - Unit tests for role/membership matrix.
+- [~] 6. Implement RBAC + job-membership authorization
+  - [x] Role-based `require_roles(...)` dependency; 401 on missing/expired/invalid token (`get_current_user`); 403 on insufficient role. Unit tests for the role matrix.
+  - [ ] Job-membership `authorize(user, job, action)` — lands with the Job model in Phase 2.
   - _Requirements: 1.3, 1.4, 1.5_
 
 - [ ] 7. Flutter auth flow
