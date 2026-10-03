@@ -118,7 +118,8 @@ async def create_selection(
 
     selection = MaterialSelection(
         job_id=job_id, product_id=data.product_id, category=data.category,
-        area=data.area, colour=colour, colour_hex=colour_hex, note=data.note,
+        area=data.area, model_surface=data.model_surface,
+        colour=colour, colour_hex=colour_hex, note=data.note,
         status=SelectionStatus.PROPOSED, selected_by=user.id,
     )
     db.add(selection)
@@ -169,3 +170,53 @@ async def decide_selection(
     await db.commit()
     await db.refresh(selection)
     return selection
+
+
+async def map_surface(
+    db: AsyncSession, user: User, selection_id: uuid.UUID, model_surface: str
+) -> MaterialSelection:
+    """Map a selection to a named surface/material in the job's 3D model."""
+    selection = await db.get(MaterialSelection, selection_id)
+    if not selection:
+        raise NotFoundError("Selection not found.", code="selection_not_found")
+    job = await get_job_or_404(db, selection.job_id)
+    if user.role not in (UserRole.ID, UserRole.ID_BOSS):
+        raise ForbiddenError("Only the ID firm can map model surfaces.", code="id_only")
+    await authorize_job_access(db, user, job)
+
+    selection.model_surface = model_surface
+    await write_audit(
+        db, actor_id=user.id, action="material.map_surface",
+        target_type="material_selection", target_id=str(selection.id), job_id=job.id,
+        metadata={"surface": model_surface},
+    )
+    await db.commit()
+    await db.refresh(selection)
+    return selection
+
+
+async def preview_materials(
+    db: AsyncSession, user: User, job_id: uuid.UUID
+) -> list[MaterialSelection]:
+    """Selections that are mapped to a model surface, for the 3D preview.
+
+    Latest selection per surface wins, so re-proposing a finish updates the view.
+    """
+    job = await get_job_or_404(db, job_id)
+    await authorize_job_access(db, user, job)
+    rows = await db.scalars(
+        select(MaterialSelection)
+        .where(
+            MaterialSelection.job_id == job_id,
+            MaterialSelection.model_surface.is_not(None),
+        )
+        .order_by(MaterialSelection.created_at.desc())
+    )
+    seen: set[str] = set()
+    result: list[MaterialSelection] = []
+    for sel in rows.all():
+        if sel.model_surface in seen:
+            continue
+        seen.add(sel.model_surface)
+        result.append(sel)
+    return result

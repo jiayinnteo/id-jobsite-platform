@@ -184,6 +184,7 @@ class MaterialSelection {
     required this.category,
     required this.status,
     this.area,
+    this.modelSurface,
     this.colour,
     this.colourHex,
     this.note,
@@ -193,6 +194,7 @@ class MaterialSelection {
   final String category;
   final String status;
   final String? area;
+  final String? modelSurface;
   final String? colour;
   final String? colourHex;
   final String? note;
@@ -203,6 +205,7 @@ class MaterialSelection {
         category: j['category'] as String,
         status: j['status'] as String,
         area: j['area'] as String?,
+        modelSurface: j['model_surface'] as String?,
         colour: j['colour'] as String?,
         colourHex: j['colour_hex'] as String?,
         note: j['note'] as String?,

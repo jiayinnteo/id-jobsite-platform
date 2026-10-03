@@ -37,9 +37,27 @@ class SelectionCreate(BaseModel):
     product_id: uuid.UUID | None = None
     category: MaterialCategory
     area: str | None = Field(default=None, max_length=160)
+    model_surface: str | None = Field(default=None, max_length=160)
     colour: str | None = Field(default=None, max_length=120)
     colour_hex: str | None = Field(default=None, max_length=9)
     note: str | None = Field(default=None, max_length=2000)
+
+
+class SurfaceMapUpdate(BaseModel):
+    """Map a selection to a named surface/material in the 3D model."""
+
+    model_surface: str = Field(min_length=1, max_length=160)
+
+
+class PreviewMaterial(BaseModel):
+    """A surface→colour mapping the 3D viewer applies to the model."""
+
+    selection_id: uuid.UUID
+    model_surface: str
+    colour_hex: str | None
+    colour: str | None
+    category: MaterialCategory
+    status: SelectionStatus
 
 
 class SelectionDecision(BaseModel):
@@ -55,6 +73,7 @@ class SelectionOut(BaseModel):
     product_id: uuid.UUID | None
     category: MaterialCategory
     area: str | None
+    model_surface: str | None
     colour: str | None
     colour_hex: str | None
     note: str | None

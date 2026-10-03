@@ -67,4 +67,17 @@ class MaterialsRepository {
       'note': note,
     });
   }
+
+  /// Map a selection to a named surface/material in the 3D model.
+  Future<void> mapSurface(String selectionId, String modelSurface) async {
+    await _dio.patch('/material-selections/$selectionId/surface', data: {
+      'model_surface': modelSurface,
+    });
+  }
+
+  /// Surface→colour mappings the 3D viewer applies to the model.
+  Future<List<Map<String, dynamic>>> previewMaterials(String jobId) async {
+    final res = await _dio.get('/jobs/$jobId/materials/preview');
+    return (res.data as List).cast<Map<String, dynamic>>();
+  }
 }

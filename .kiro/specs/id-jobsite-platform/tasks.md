@@ -171,6 +171,7 @@ behind mockable adapters.
   - Full 3D authoring intentionally out of scope — models imported from external tools (e.g. SketchUp).
   - _Requirements: 18.1, 18.2, 18.4, 18.5_
 
-- [ ] 31. 3D material preview (future)
-  - Map selected colours/finishes onto model surfaces for live preview.
+- [x] 31. 3D material preview
+  - Map a selection to a named model surface (ID); the viewer applies each mapped colour to the matching glTF material via model-viewer's setBaseColorFactor, with a client toggle. Backend: model_surface field + /materials/preview + /surface endpoints; Alembic 0006.
+  - Note: colour-factor preview now; full UV-mapped texture preview is a further enhancement.
   - _Requirements: 18.3_

@@ -56,6 +56,7 @@ class MaterialsTab extends ConsumerWidget {
                 jobId: jobId,
                 selection: items[i],
                 canDecide: isClient,
+                canMapSurface: isFirm,
               ),
             ),
           );
@@ -143,10 +144,12 @@ class _SelectionCard extends ConsumerWidget {
     required this.jobId,
     required this.selection,
     required this.canDecide,
+    this.canMapSurface = false,
   });
   final String jobId;
   final MaterialSelection selection;
   final bool canDecide;
+  final bool canMapSurface;
 
   Color _statusColor(BuildContext context) {
     switch (selection.status) {
@@ -203,6 +206,26 @@ class _SelectionCard extends ConsumerWidget {
                 ),
               ],
             ),
+            if (canMapSurface) ...[
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => _mapSurface(context, ref),
+                child: Row(
+                  children: [
+                    const Icon(Icons.view_in_ar_outlined, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      s.modelSurface == null
+                          ? 'Map to a 3D surface for preview'
+                          : '3D surface: ${s.modelSurface}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.edit_outlined, size: 14),
+                  ],
+                ),
+              ),
+            ],
             if (canDecide && s.status == 'PROPOSED') ...[
               const SizedBox(height: 12),
               Row(
@@ -236,5 +259,49 @@ class _SelectionCard extends ConsumerWidget {
         .read(materialsRepositoryProvider)
         .decideSelection(selection.id, approve: approve);
     ref.invalidate(materialSelectionsProvider(jobId));
+  }
+
+  Future<void> _mapSurface(BuildContext context, WidgetRef ref) async {
+    final ctrl = TextEditingController(text: selection.modelSurface ?? '');
+    final surface = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Map to 3D surface'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter the material/mesh name in the 3D model this finish '
+              'applies to (e.g. "floor", "wall_living"). Matching is '
+              'case-insensitive.',
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: ctrl,
+              autofocus: true,
+              decoration: const InputDecoration(hintText: 'floor'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          AppButton(
+            label: 'Save',
+            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
+          ),
+        ],
+      ),
+    );
+    if (surface != null && surface.isNotEmpty) {
+      await ref
+          .read(materialsRepositoryProvider)
+          .mapSurface(selection.id, surface);
+      ref.invalidate(materialSelectionsProvider(jobId));
+    }
   }
 }

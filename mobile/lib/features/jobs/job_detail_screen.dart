@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/user_role.dart';
 import '../../data/jobs_repository.dart';
+import '../../data/materials_repository.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/states.dart';
 import '../../widgets/status_chip.dart';
@@ -182,14 +183,22 @@ class _Overview extends ConsumerWidget {
   }
 }
 
-/// Finds the job's uploaded 3D model (if any) and shows the in-app viewer.
-class _Model3dTab extends ConsumerWidget {
+/// Finds the job's uploaded 3D model (if any) and shows the in-app viewer,
+/// applying mapped material-colour previews with a toggle.
+class _Model3dTab extends ConsumerStatefulWidget {
   const _Model3dTab({required this.jobId});
   final String jobId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final docs = ref.watch(documentsProvider(jobId));
+  ConsumerState<_Model3dTab> createState() => _Model3dTabState();
+}
+
+class _Model3dTabState extends ConsumerState<_Model3dTab> {
+  bool _previewOn = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final docs = ref.watch(documentsProvider(widget.jobId));
     return docs.when(
       loading: () => const LoadingState(),
       error: (_, __) => const ModelViewerBody(modelUrl: null),
@@ -200,10 +209,46 @@ class _Model3dTab extends ConsumerWidget {
         }
         final model = models.first;
         return FutureBuilder<String>(
-          future: ref.read(jobsRepositoryProvider).documentDownloadUrl(model.id),
-          builder: (context, snap) {
-            if (!snap.hasData) return const LoadingState();
-            return ModelViewerBody(modelUrl: snap.data, title: model.title);
+          future: ref
+              .read(jobsRepositoryProvider)
+              .documentDownloadUrl(model.id),
+          builder: (context, urlSnap) {
+            if (!urlSnap.hasData) return const LoadingState();
+            return FutureBuilder<List<Map<String, dynamic>>>(
+              future: ref
+                  .read(materialsRepositoryProvider)
+                  .previewMaterials(widget.jobId),
+              builder: (context, mapSnap) {
+                final previews = (mapSnap.data ?? [])
+                    .map((m) => SurfacePreview(
+                          surface: m['model_surface']?.toString() ?? '',
+                          colourHex: m['colour_hex'] as String?,
+                          label: m['colour'] as String?,
+                        ))
+                    .where((p) => p.surface.isNotEmpty)
+                    .toList();
+                return Column(
+                  children: [
+                    if (previews.isNotEmpty)
+                      SwitchListTile(
+                        value: _previewOn,
+                        onChanged: (v) => setState(() => _previewOn = v),
+                        secondary: const Icon(Icons.palette_outlined),
+                        title: const Text('Preview selected materials'),
+                        subtitle: Text('${previews.length} surface(s) mapped'),
+                      ),
+                    Expanded(
+                      child: ModelViewerBody(
+                        modelUrl: urlSnap.data,
+                        title: model.title,
+                        previews: previews,
+                        previewOn: _previewOn,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
           },
         );
       },

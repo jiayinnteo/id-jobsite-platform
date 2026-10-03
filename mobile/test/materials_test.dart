@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:id_jobsite/features/model3d/model_viewer_screen.dart';
 import 'package:id_jobsite/widgets/colour_swatch.dart';
 
 void main() {
@@ -19,5 +20,14 @@ void main() {
       const MaterialApp(home: Scaffold(body: ColourSwatch(hex: '#81B29A'))),
     );
     expect(find.byType(ColourSwatch), findsOneWidget);
+  });
+
+  testWidgets('ModelViewerBody shows empty state without a model', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: ModelViewerBody(modelUrl: null)),
+      ),
+    );
+    expect(find.text('No 3D model yet'), findsOneWidget);
   });
 }

@@ -10,11 +10,13 @@ from app.db.base import get_db
 from app.models.material import MaterialCategory
 from app.models.user import User, UserRole
 from app.schemas.material import (
+    PreviewMaterial,
     ProductOut,
     SelectionCreate,
     SelectionDecision,
     SelectionOut,
     SupplierOut,
+    SurfaceMapUpdate,
 )
 from app.services import material_service
 
@@ -81,3 +83,37 @@ async def decide_selection(
     user: User = Depends(get_current_user),
 ):
     return await material_service.decide_selection(db, user, selection_id, data)
+
+
+@selections_router.patch("/{selection_id}/surface", response_model=SelectionOut)
+async def map_surface(
+    selection_id: uuid.UUID,
+    data: SurfaceMapUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return await material_service.map_surface(
+        db, user, selection_id, data.model_surface
+    )
+
+
+@job_materials_router.get(
+    "/{job_id}/materials/preview", response_model=list[PreviewMaterial]
+)
+async def preview_materials(
+    job_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    selections = await material_service.preview_materials(db, user, job_id)
+    return [
+        PreviewMaterial(
+            selection_id=s.id,
+            model_surface=s.model_surface,
+            colour_hex=s.colour_hex,
+            colour=s.colour,
+            category=s.category,
+            status=s.status,
+        )
+        for s in selections
+    ]
