@@ -17,10 +17,12 @@ behind mockable adapters.
   - Add `.env.example` enumerating DB, S3, JWT, LLM, WhatsApp, Google keys.
   - _Requirements: 13.2, 13.4_
 
-- [ ] 3. Set up the Flutter app skeleton
-  - Initialize Flutter project; add Riverpod, dio, go_router, secure storage, image_picker.
+- [ ] 3. Set up the Flutter app skeleton + design system
+  - Initialize Flutter project; add Riverpod, dio, go_router, secure storage, image_picker, google_fonts.
   - Create app shell, routing, and a configurable API base URL.
-  - _Requirements: 1.2, 7.1_
+  - Build the shared design system: warm Material 3 theme (light + dark) in `lib/theme/`, and reusable widgets (`AppScaffold`, `AppButton`, `AppCard`, `StatusChip`, `EmptyState`, `LoadingState`, `ConfirmDialog`) in `lib/widgets/`.
+  - Add per-role bottom-navigation shell.
+  - _Requirements: 1.2, 7.1, 14.1, 14.2, 14.3, 14.4, 14.6_
 
 - [ ] 4. Database foundation
   - Configure SQLAlchemy 2.x + Alembic; create the initial migration for core tables.

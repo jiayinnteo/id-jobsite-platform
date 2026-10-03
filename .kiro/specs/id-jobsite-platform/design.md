@@ -68,6 +68,39 @@ that drafts replies for **human approval** before they are sent over **WhatsApp*
 ### State management (Flutter)
 - **Riverpod** for state + dependency injection; **dio** for HTTP with auth-refresh interceptor; **go_router** for navigation; **image_picker/camera** for capture; secure storage for tokens.
 
+### Design System (clean · warm · welcoming · easy to navigate)
+A single shared theme drives every screen. Built on Material 3 with a warm palette.
+
+**Color palette (seeded, light & dark via Material 3 `ColorScheme.fromSeed`):**
+| Token | Light | Role |
+|---|---|---|
+| Primary | `#E07A5F` (warm terracotta) | buttons, active states, highlights |
+| Secondary | `#F2CC8F` (soft amber) | accents, chips, badges |
+| Tertiary | `#81B29A` (muted sage) | success / positive accents |
+| Background | `#FBF7F2` (warm off-white) | app background |
+| Surface | `#FFFFFF` / `#FFF9F3` | cards, sheets |
+| Error | `#C1554B` (warm red) | errors, reject actions |
+| Text primary | `#3D3A36` (warm charcoal) | body text |
+
+Dark theme is derived from the same seed so the warmth is preserved.
+
+**Typography:** rounded, friendly sans (e.g. *Nunito* / *Plus Jakarta Sans*) via
+`google_fonts`; generous line-height; clear type scale (display → body → label).
+
+**Shape & spacing:** 16px rounded corners on cards/buttons, soft shadows, an 8px
+spacing grid, comfortable padding — airy, not dense.
+
+**Navigation:** a **bottom navigation bar** per role (max 5 destinations) so every
+top-level area is one tap away; secondary screens pushed via `go_router`. FAB for
+the main create action (e.g. "Raise defect", "New job").
+
+**Reusable components:** `AppScaffold`, `AppButton` (primary/secondary/destructive),
+`AppCard`, `StatusChip` (color-coded defect states), `EmptyState`, `LoadingState`,
+`ConfirmDialog`. All screens compose these — no ad-hoc styling.
+
+**Centralized in** `lib/theme/` (`app_theme.dart`, `app_colors.dart`,
+`app_typography.dart`) and `lib/widgets/` (shared components).
+
 ---
 
 ## Data Model

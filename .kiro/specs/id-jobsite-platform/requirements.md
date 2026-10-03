@@ -190,3 +190,17 @@ and auditable, so I can trust it with client projects.
 3. WHEN the API receives invalid input THEN the system SHALL validate it and return a structured error without a stack trace.
 4. WHERE object storage is used THE SYSTEM SHALL only expose files via time-limited pre-signed URLs, never public buckets.
 5. THE SYSTEM SHALL expose a health-check endpoint for liveness/readiness.
+
+### Requirement 14 — Design System & User Experience
+**User Story:** As any user, I want the app to look clean, warm, and welcoming and
+be easy to navigate, so that it feels friendly and I can accomplish tasks without
+confusion.
+
+#### Acceptance Criteria
+1. THE SYSTEM SHALL apply a single shared design system (colors, typography, spacing, components) consistently across every screen.
+2. WHERE a warm, welcoming aesthetic is required THE SYSTEM SHALL use a warm color palette (soft terracotta/amber primary with warm neutral backgrounds) rather than cold, high-contrast corporate colors.
+3. THE SYSTEM SHALL provide primary navigation that reaches every top-level area of a role in at most two taps (e.g. a bottom navigation bar on mobile).
+4. WHEN content is loading THEN the system SHALL show a friendly loading state, and WHEN a list is empty THEN it SHALL show a helpful empty state (not a blank screen).
+5. THE SYSTEM SHALL meet accessibility basics: minimum tap-target size, WCAG AA text contrast, and support for the device's text-scaling setting.
+6. THE SYSTEM SHALL support both light and dark themes derived from the same warm palette.
+7. WHERE actions have consequences (reject, delete, send) THE SYSTEM SHALL use clear, human-friendly copy and confirm destructive actions.
