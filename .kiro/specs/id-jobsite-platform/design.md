@@ -68,18 +68,58 @@ that drafts replies for **human approval** before they are sent over **WhatsApp*
 ### State management (Flutter)
 - **Riverpod** for state + dependency injection; **dio** for HTTP with auth-refresh interceptor; **go_router** for navigation; **image_picker/camera** for capture; secure storage for tokens.
 
+### Design System (clean · warm · welcoming · easy to navigate)
+A single shared theme drives every screen. Built on Material 3 with a warm palette.
+
+**Color palette (seeded, light & dark via Material 3 `ColorScheme.fromSeed`):**
+| Token | Light | Role |
+|---|---|---|
+| Primary | `#E07A5F` (warm terracotta) | buttons, active states, highlights |
+| Secondary | `#F2CC8F` (soft amber) | accents, chips, badges |
+| Tertiary | `#81B29A` (muted sage) | success / positive accents |
+| Background | `#FBF7F2` (warm off-white) | app background |
+| Surface | `#FFFFFF` / `#FFF9F3` | cards, sheets |
+| Error | `#C1554B` (warm red) | errors, reject actions |
+| Text primary | `#3D3A36` (warm charcoal) | body text |
+
+Dark theme is derived from the same seed so the warmth is preserved.
+
+**Typography:** rounded, friendly sans (e.g. *Nunito* / *Plus Jakarta Sans*) via
+`google_fonts`; generous line-height; clear type scale (display → body → label).
+
+**Shape & spacing:** 16px rounded corners on cards/buttons, soft shadows, an 8px
+spacing grid, comfortable padding — airy, not dense.
+
+**Navigation:** a **bottom navigation bar** per role (max 5 destinations) so every
+top-level area is one tap away; secondary screens pushed via `go_router`. FAB for
+the main create action (e.g. "Raise defect", "New job").
+
+**Reusable components:** `AppScaffold`, `AppButton` (primary/secondary/destructive),
+`AppCard`, `StatusChip` (color-coded defect states), `EmptyState`, `LoadingState`,
+`ConfirmDialog`. All screens compose these — no ad-hoc styling.
+
+**Centralized in** `lib/theme/` (`app_theme.dart`, `app_colors.dart`,
+`app_typography.dart`) and `lib/widgets/` (shared components).
+
 ---
 
 ## Data Model
 
 ```
-User(id, email, password_hash, full_name, role[ID|CLIENT|CONTRACTOR|WORKER],
+User(id, email, password_hash, full_name,
+     role[ID_BOSS|ID|CLIENT|CONTRACTOR|WORKER],
      phone, company_id?, google_tokens?, push_tokens[], created_at)
 
-Company(id, name, type[ID_FIRM|CONTRACTOR], created_at)   # groups contractor workers
+Company(id, name, type[ID_FIRM|CONTRACTOR], created_at)   # groups firm IDs/boss & contractor workers
 
 Job(id, name, address, status[DRAFT|ACTIVE|ON_HOLD|COMPLETED],
-    created_by(ID), client_id, created_at, updated_at)
+    firm_id(company), created_by(ID), client_id, created_at, updated_at)
+
+OversightReview(id, job_id, boss_id, flag[NEEDS_ATTENTION|APPROVED],
+                note, created_at)                      # internal, firm-only (R15)
+
+JobReview(id, job_id, client_id, rating(1..5), comment?, created_at, updated_at)
+                                                        # client review/rating (R16)
 
 JobMember(id, job_id, user_id, role_in_job)               # membership + RBAC scope
 
@@ -139,6 +179,10 @@ POST   /auth/password-reset
 
 GET    /jobs                     POST /jobs              GET  /jobs/{id}
 PATCH  /jobs/{id}                POST /jobs/{id}/members
+GET    /firm/jobs                               # ID_BOSS: all firm jobs (R15)
+POST   /jobs/{id}/oversight-reviews             # ID_BOSS internal review (R15)
+POST   /jobs/{id}/review          GET /jobs/{id}/review   # client review (R16)
+GET    /firm/ratings                            # aggregate avg rating (R16)
 
 POST   /jobs/{id}/documents      GET  /jobs/{id}/documents
 POST   /documents/{id}/versions  GET  /documents/{id}/download   # pre-signed URL
@@ -179,6 +223,23 @@ Each port has a `Mock*` implementation enabled when credentials are absent, so t
 whole app runs end-to-end in local dev and tests without external accounts. This
 directly satisfies "operate without WhatsApp/LLM credentials" requirements.
 
+### Chat ↔ WhatsApp bridge
+A job has **one** `Conversation` that spans both channels so nothing is missed:
+- **WhatsApp → app:** webhook stores the inbound `Message` and it appears in the
+  in-app chat immediately (realtime push).
+- **App → WhatsApp:** when a member sends an in-app message (or an AI draft is
+  approved), a worker job calls `WhatsAppPort.send()` to the client's number.
+- **De-duplication:** messages carry a `channel` + `external_id`; the bridge is
+  idempotent so a mirrored message is never echoed back and re-sent in a loop.
+- AI replies still require human approval (Req 10); a human's own message sends
+  directly on both channels.
+
+### Auto Google Calendar linking
+Scheduling is calendar-first: creating/updating a `ScheduleItem` or `SiteVisit`
+enqueues a `CalendarPort.upsert_event()` for **every linked participant** who has
+connected Google (stored `google_event_id` per user keeps updates idempotent). If a
+participant connects later, a backfill creates their events. No manual export.
+
 ---
 
 ## Security & RBAC
@@ -186,6 +247,8 @@ directly satisfies "operate without WhatsApp/LLM credentials" requirements.
 - Every job-scoped endpoint runs an `authorize(user, job, action)` check against
   `JobMember` + role. Non-members → 403.
 - Accept/Reject restricted to the job's client; job create/delete restricted to ID.
+- **ID_BOSS** gets firm-wide read + oversight on jobs where `Job.firm_id == boss.company_id` (no cross-firm access). Oversight reviews are internal (firm-only), never shown to client/contractor/worker.
+- **Client reviews** are writable only by the job's client; readable by firm members with a "Reviewed" tag.
 - Files only via time-limited pre-signed URLs; buckets are private.
 - Secrets via environment/config; `.env.example` documents required keys.
 - `AuditLog` written for every state-changing action.

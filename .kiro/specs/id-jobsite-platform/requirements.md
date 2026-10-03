@@ -7,8 +7,8 @@ platform for a Singapore-based interior design (ID) company. The platform helps
 interior designers manage job sites and coordinate clearly with both clients and
 contractors, reducing miscommunication across the renovation lifecycle.
 
-The system serves four roles — **Interior Designer (ID)**, **Client**,
-**Contractor (company boss)**, and **Worker** — and provides shared project
+The system serves five roles — **ID Company Boss (ID_BOSS)**, **Interior Designer
+(ID)**, **Client**, **Contractor (company boss)**, and **Worker** — and provides shared project
 artifacts (quotations, 2D/3D drawings, schedules), a defect tracking and
 rectification workflow with explicit client accept/reject, site-photo capture for
 all parties, bidirectional Google Calendar sync, a first-class in-app chat, and an
@@ -28,6 +28,7 @@ or over WhatsApp.
 ---
 
 ## Glossary
+- **ID_BOSS**: ID Company Boss — oversees all jobs run by their ID firm.
 - **ID**: Interior Designer — primary operator of the platform.
 - **Job / Project**: A renovation engagement for one client at one site.
 - **Defect**: An issue raised against a job that needs rectification.
@@ -44,7 +45,7 @@ or over WhatsApp.
 my role permits, so that project data stays confidential and relevant.
 
 #### Acceptance Criteria
-1. WHEN a new user registers THEN the system SHALL create an account with exactly one of the roles: ID, Client, Contractor, Worker.
+1. WHEN a new user registers THEN the system SHALL create an account with exactly one of the roles: ID_BOSS, ID, Client, Contractor, Worker.
 2. WHEN a user authenticates with valid credentials THEN the system SHALL issue a time-limited access token and a refresh token.
 3. IF a user presents an expired access token WHEN calling an API THEN the system SHALL reject the request with HTTP 401.
 4. WHEN a user accesses a resource THEN the system SHALL authorize the request against the user's role and their membership in the related job.
@@ -135,7 +136,8 @@ so that site visits and milestones appear in my own calendar and vice versa.
 
 #### Acceptance Criteria
 1. WHEN a user connects their Google account THEN the system SHALL complete OAuth and store the user's calendar tokens securely.
-2. WHEN a schedule item is created or updated in the app THEN the system SHALL create/update the corresponding Google Calendar event for linked users.
+2. WHEN any schedule item or site visit is created or updated in the app THEN the system SHALL automatically create/update the corresponding event on the Google Calendar of each linked participant who has connected their account — no manual export step.
+2a. WHERE a participant has NOT connected Google Calendar THE SYSTEM SHALL keep the schedule in-app and auto-create the event later once they connect.
 3. WHEN a linked Google Calendar event is changed externally THEN the system SHALL reflect the change on the app's schedule.
 4. IF a user disconnects Google Calendar THEN the system SHALL stop syncing and revoke stored tokens.
 5. IF a calendar sync operation fails THEN the system SHALL retry with backoff and surface a persistent error if it continues to fail.
@@ -167,15 +169,17 @@ WhatsApp is not used.
 5. WHERE a message pertains to a defect, rectification, or schedule item THE SYSTEM SHALL allow linking it so members can deep-link to that item.
 6. IF a user is not a member of the job THEN the system SHALL NOT allow them to read or post in that conversation (HTTP 403).
 7. WHERE the AI assistant is enabled THE SYSTEM SHALL be able to draft a reply for a chat message that follows the same human-in-the-loop approval before sending.
+8. WHEN a member sends an in-app chat message AND the job's client has a WhatsApp number AND WhatsApp is enabled THEN the system SHALL also deliver that message to WhatsApp, so no party misses it on either platform.
+9. WHERE a message was mirrored across channels THE SYSTEM SHALL avoid duplicating it (idempotent by channel + external message id) and SHALL show both channels within the single job conversation.
 
-### Requirement 12 — WhatsApp Messaging Integration
+### Requirement 12 — WhatsApp Messaging Integration (bridged with in-app chat)
 **User Story:** As an ID, I want client/contractor conversations to flow over
 WhatsApp with AI-assisted, human-approved replies, so clients communicate on a
 channel they already use.
 
 #### Acceptance Criteria
-1. WHEN an inbound WhatsApp message arrives at the webhook THEN the system SHALL record it against the matching job conversation.
-2. WHEN an approved reply is sent THEN the system SHALL deliver it via the WhatsApp Business Cloud API to the correct recipient.
+1. WHEN an inbound WhatsApp message arrives at the webhook THEN the system SHALL record it against the matching job conversation AND mirror it into the in-app chat so members see it in the app too.
+2. WHEN an approved reply (or a human's own in-app message) is sent THEN the system SHALL deliver it via the WhatsApp Business Cloud API to the correct recipient, keeping the in-app chat and WhatsApp in sync.
 3. WHERE WhatsApp credentials are not configured THE SYSTEM SHALL operate in a disabled/mock mode without breaking other features.
 4. IF a WhatsApp API call fails THEN the system SHALL record the failure and allow retry.
 5. WHEN the webhook receives a verification challenge THEN the system SHALL respond per the WhatsApp verification protocol.
@@ -190,3 +194,68 @@ and auditable, so I can trust it with client projects.
 3. WHEN the API receives invalid input THEN the system SHALL validate it and return a structured error without a stack trace.
 4. WHERE object storage is used THE SYSTEM SHALL only expose files via time-limited pre-signed URLs, never public buckets.
 5. THE SYSTEM SHALL expose a health-check endpoint for liveness/readiness.
+
+### Requirement 14 — Design System & User Experience
+**User Story:** As any user, I want the app to look clean, warm, and welcoming and
+be easy to navigate, so that it feels friendly and I can accomplish tasks without
+confusion.
+
+#### Acceptance Criteria
+1. THE SYSTEM SHALL apply a single shared design system (colors, typography, spacing, components) consistently across every screen.
+2. WHERE a warm, welcoming aesthetic is required THE SYSTEM SHALL use a warm color palette (soft terracotta/amber primary with warm neutral backgrounds) rather than cold, high-contrast corporate colors.
+3. THE SYSTEM SHALL provide primary navigation that reaches every top-level area of a role in at most two taps (e.g. a bottom navigation bar on mobile).
+4. WHEN content is loading THEN the system SHALL show a friendly loading state, and WHEN a list is empty THEN it SHALL show a helpful empty state (not a blank screen).
+5. THE SYSTEM SHALL meet accessibility basics: minimum tap-target size, WCAG AA text contrast, and support for the device's text-scaling setting.
+6. THE SYSTEM SHALL support both light and dark themes derived from the same warm palette.
+7. WHERE actions have consequences (reject, delete, send) THE SYSTEM SHALL use clear, human-friendly copy and confirm destructive actions.
+
+### Requirement 15 — ID Company Boss Oversight & Job Review
+**User Story:** As the ID company boss, I want to review and oversee any job run by
+my firm when necessary, so that I can keep quality high and step in when needed.
+
+#### Acceptance Criteria
+1. WHEN an ID_BOSS opens the app THEN the system SHALL list all jobs belonging to their ID firm, not only jobs they personally created.
+2. WHEN an ID_BOSS opens any job in their firm THEN the system SHALL grant read access to that job's documents, defects, rectifications, schedule, photos, and conversation.
+3. WHEN an ID_BOSS reviews a job THEN the system SHALL allow them to record an internal oversight review note (status flag such as Needs Attention / Approved) visible to the firm's IDs but not to clients, contractors, or workers.
+4. WHEN an ID_BOSS adds an oversight review THEN the system SHALL notify the ID assigned to that job.
+5. WHERE a user belongs to a different firm OR is not an ID_BOSS THE SYSTEM SHALL NOT grant firm-wide oversight access (HTTP 403).
+6. WHERE an ID_BOSS performs an action THE SYSTEM SHALL record it in the audit log like any other actor.
+
+### Requirement 16 — Client Reviews & Ratings
+**User Story:** As a client, I want to leave a review of the completed work, so that
+I can share feedback and the ID firm can showcase its service quality.
+
+#### Acceptance Criteria
+1. WHERE a job is Completed THE SYSTEM SHALL allow the job's client to submit a review with a star rating (1–5) and an optional comment.
+2. WHEN a client submits a review THEN the system SHALL record the rating, comment, author, and timestamp, and notify the ID and ID_BOSS.
+3. WHEN a client has already reviewed a job THEN the system SHALL allow them to edit their existing review rather than create a duplicate.
+4. WHEN any firm member (ID, ID_BOSS) views a reviewed job THEN the system SHALL display the review with a visible "Reviewed" tag and the rating.
+5. WHERE a user is not the job's client THE SYSTEM SHALL NOT allow submitting or editing that job's review (HTTP 403).
+6. WHERE reviews exist THE SYSTEM SHALL expose an aggregate average rating per ID and per firm for display.
+
+### Requirement 17 — Materials, Finishes & Supplier Catalogues
+**User Story:** As an ID, I want to browse supplier catalogues (laminates, tiles,
+worktops, paints, vinyl, etc.) and select materials & colours for a job, so that
+the client can review and approve the finishes.
+
+#### Acceptance Criteria
+1. THE SYSTEM SHALL organize materials by category (e.g. LAMINATE, TILE, WORKTOP, PAINT, VINYL, FLOORING, OTHER).
+2. WHERE a supplier is integrated THE SYSTEM SHALL expose that supplier's catalogue of products with name, product code, colour/finish, swatch image, and the supplier's source URL.
+3. THE SYSTEM SHALL support suppliers from Singapore and Malaysia via a pluggable supplier interface (e.g. ECO+ for vinyl, Nippon for paint), so new suppliers can be added without changing callers.
+4. WHERE a supplier provides no public API THE SYSTEM SHALL support catalogue data via periodic import or curated data, and SHALL record the source URL for attribution.
+5. WHEN an ID adds a material selection to a job THEN the system SHALL record the product, category, chosen colour/finish, target area/room, and the selecting user.
+6. WHEN a client opens a job THEN the system SHALL let them view the selected materials with swatches and (where available) a link to the supplier page.
+7. WHERE a client reviews a selection THE SYSTEM SHALL let them approve or request a change, notifying the ID.
+8. THE SYSTEM SHALL only reuse supplier imagery/data in line with each supplier's terms; where rights are unclear it SHALL link out to the supplier page rather than rehost.
+
+### Requirement 18 — 3D Model Viewing & Material Preview
+**User Story:** As a client, I want to view a 3D model of my renovation in the app
+with the chosen materials applied, so that I can understand the design before work
+proceeds.
+
+#### Acceptance Criteria
+1. WHEN an ID uploads a 3D model (glTF/GLB exported from their tool, e.g. SketchUp) THEN the system SHALL store it and associate it with the job.
+2. WHEN a client opens the 3D view THEN the system SHALL render the model with orbit/zoom controls in the app.
+3. WHERE material selections exist THE SYSTEM SHALL allow previewing a selected colour/finish on the model (where the model's surfaces are mapped).
+4. IF the device cannot render the model THEN the system SHALL degrade gracefully (e.g. show drawings/images) without crashing.
+5. THE SYSTEM SHALL treat full 3D authoring (modelling from scratch) as out of scope; models are authored in external tools and imported. The in-app experience is viewing + material preview.
