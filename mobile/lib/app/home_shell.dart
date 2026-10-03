@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
+import '../features/demo/sample_job_screen.dart';
 import 'user_role.dart';
 
 /// A navigation destination for the per-role bottom bar.
@@ -29,7 +31,7 @@ class _HomeShellState extends State<HomeShell> {
         return const [
           NavDest(Icons.insights_outlined, 'Overview', _Placeholder('Firm Overview')),
           NavDest(Icons.folder_open_outlined, 'Firm Jobs',
-              _Placeholder('All firm jobs — tap a job to review (Needs Attention / Approved)')),
+              SampleJobScreen(mode: 'boss')),
           NavDest(Icons.reviews_outlined, 'Reviews',
               _Placeholder('Client reviews & average ratings')),
           NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
@@ -48,8 +50,7 @@ class _HomeShellState extends State<HomeShell> {
           NavDest(Icons.home_outlined, 'Home', _Placeholder('Client Dashboard')),
           NavDest(Icons.description_outlined, 'Project', _Placeholder('Documents & Drawings')),
           NavDest(Icons.report_problem_outlined, 'Defects', _Placeholder('Defects')),
-          NavDest(Icons.star_outline, 'Review',
-              _Placeholder('Leave a review for completed jobs (rating + comment)')),
+          NavDest(Icons.star_outline, 'Review', SampleJobScreen(mode: 'client')),
           NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
         ];
       case UserRole.contractor:

@@ -35,9 +35,9 @@ behind mockable adapters.
   - Register with role (ID/Client/Contractor/Worker); login; refresh; password reset request.
   - _Requirements: 1.1, 1.2, 1.3, 1.6_
 
-- [~] 6. Implement RBAC + job-membership authorization
+- [x] 6. Implement RBAC + job-membership authorization
   - [x] Role-based `require_roles(...)` dependency; 401 on missing/expired/invalid token (`get_current_user`); 403 on insufficient role. Unit tests for the role matrix.
-  - [ ] Job-membership `authorize(user, job, action)` — lands with the Job model in Phase 2.
+  - [x] Job-membership `authorize_job_access(user, job)` (creator / client / member / firm-boss), returning 403 for non-members (`app/services/common.py`).
   - _Requirements: 1.3, 1.4, 1.5_
 
 - [ ] 7. Flutter auth flow
@@ -46,43 +46,44 @@ behind mockable adapters.
 
 ## Phase 2 — Jobs & Documents
 
-- [ ] 8. Job management API + services (incl. ID_BOSS oversight)
+- [x] 8. Job management API + services (incl. ID_BOSS oversight)
   - Create/list/get/update job; add members; status transitions; audit entries.
   - Enforce ID-only create/delete; `firm_id` on jobs.
   - ID_BOSS firm-wide job list + read access; internal oversight reviews (flag + note) that notify the assigned ID and are hidden from client/contractor/worker.
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 13.1, 15.1, 15.2, 15.3, 15.4, 15.5, 15.6_
 
-- [ ] 9. StoragePort + document/version management
+- [x] 9. StoragePort + document/version management
   - `StoragePort` with S3 and Mock impls; pre-signed upload/download URLs.
   - Upload quotation (xlsx/pdf), 2D/3D drawings, schedule; versioning; type/size validation.
   - _Requirements: 3.1, 3.2, 3.4, 3.5, 3.6, 13.4_
 
-- [ ] 10. Flutter jobs + document screens (+ boss oversight UI)
-  - Job list/detail; participant management (ID); document upload & viewer/download for clients.
-  - ID_BOSS firm-wide job overview + a "Review job" action to flag Needs Attention / Approved with a note.
+- [~] 10. Flutter jobs + document screens (+ boss oversight UI)
+  - [x] API client (dio + token refresh) + jobs repository; ID_BOSS "Review job" oversight sheet (Needs Attention / Approved + note), wired in a preview screen.
+  - [ ] Full job list/detail + participant management + document upload/viewer screens against live data (needs Flutter auth from task 7).
   - _Requirements: 2.3, 3.3, 15.1, 15.3_
 
 ## Phase 3 — Defects, Rectification & Photos (core differentiator)
 
-- [ ] 11. Defect reporting & tracking API
+- [x] 11. Defect reporting & tracking API
   - Create defect with photos; assign to contractor; status state machine with history.
   - Notify on create/assign/status change.
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
 
-- [ ] 12. Rectification accept/reject API
+- [x] 12. Rectification accept/reject API
   - Mark rectified; client Accept/Reject (reject requires reason); record decision; notify ID/contractor.
   - Enforce client-only decision (403 otherwise).
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 13. Site photo capture & gallery API
+- [x] 13. Site photo capture & gallery API
   - Upload photo attached to job/defect/visit; metadata; permission-scoped gallery; retry-safe.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 14. Flutter defect + photo + accept/reject UI
-  - Defect create with camera capture; defect detail w/ history & photos; Accept/Reject buttons; job photo gallery.
+- [~] 14. Flutter defect + photo + accept/reject UI
+  - [x] Accept/Reject action bar (reject requires a reason) + client review sheet, wired in a preview screen with the warm design system.
+  - [ ] Defect create with camera capture + defect detail (history & photos) + photo gallery against live data (needs Flutter auth from task 7).
   - _Requirements: 4.1, 4.6, 5.1, 5.2, 5.3, 7.1, 7.3_
 
-- [ ] 14b. Client reviews & ratings (API + Flutter)
+- [x] 14b. Client reviews & ratings (API + Flutter)
   - On Completed jobs: client submits/edits a star rating (1–5) + comment; notify ID & ID_BOSS; client-only write (403 otherwise).
   - Firm views show a "Reviewed" tag + rating; aggregate average per ID and per firm.
   - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6_

@@ -34,8 +34,15 @@ dev = [
 line-length = 100
 target-version = "py312"
 
+[tool.ruff.lint.per-file-ignores]
+# Migrations use wide, declarative column definitions.
+"alembic/versions/*" = ["E501"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "W"]
+# UP042: (str, Enum) mixins are intentional for SQLAlchemy/Pydantic serialization.
+# B008: FastAPI uses `Depends(...)` as a default-argument idiom by design.
+ignore = ["UP042", "B008"]
 
 [tool.black]
 line-length = 100

@@ -4,6 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import auth as auth_api
+from app.api import defects as defects_api
+from app.api import documents as documents_api
+from app.api import jobs as jobs_api
 from app.core.config import get_settings
 from app.core.errors import register_error_handlers
 
@@ -16,7 +19,15 @@ app = FastAPI(
 )
 
 register_error_handlers(app)
-app.include_router(auth_api.router, prefix=settings.api_v1_prefix)
+_p = settings.api_v1_prefix
+app.include_router(auth_api.router, prefix=_p)
+app.include_router(jobs_api.router, prefix=_p)
+app.include_router(jobs_api.firm_router, prefix=_p)
+app.include_router(documents_api.job_docs_router, prefix=_p)
+app.include_router(documents_api.docs_router, prefix=_p)
+app.include_router(defects_api.job_defects_router, prefix=_p)
+app.include_router(defects_api.defects_router, prefix=_p)
+app.include_router(defects_api.rect_router, prefix=_p)
 
 # Mobile app connects from arbitrary origins in dev; tighten in production.
 app.add_middleware(

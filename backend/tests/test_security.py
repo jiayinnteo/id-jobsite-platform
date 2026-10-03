@@ -5,7 +5,6 @@ from jose import JWTError
 
 from app.core.security import (
     ACCESS,
-    REFRESH,
     create_access_token,
     create_refresh_token,
     decode_token,
