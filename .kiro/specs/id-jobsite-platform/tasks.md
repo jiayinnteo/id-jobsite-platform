@@ -103,9 +103,9 @@ behind mockable adapters.
   - Notification fan-out on all notifiable events; unread count; mark-read + deep link; `PushPort` (FCM/APNs) with mock.
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [~] 18. Flutter notifications UI + push registration
-  - [x] Notification center (list, unread styling, tap-to-read) + unread **badge** on the Alerts nav icon.
-  - [ ] Device push-token registration (needs a real FCM/APNs project).
+- [x] 18. Flutter notifications UI + push registration
+  - Notification center (list, unread styling, tap-to-read) + unread **badge** on the Alerts nav icon.
+  - Device push-token registration end-to-end: backend DeviceToken model + register/unregister endpoints + FCM PushPort wired into the notification fan-out (prunes dead tokens); Flutter PushService captures the FCM token on sign-in, registers it, handles refresh, unregisters on sign-out. Runs in mock mode until a Firebase project is configured (FCM_* env + native config files).
   - _Requirements: 8.2, 8.3, 8.4_
 
 ## Phase 6 — Google Calendar (bidirectional)

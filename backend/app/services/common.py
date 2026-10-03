@@ -44,12 +44,24 @@ async def notify(
     body: str | None = None,
     deep_link: str | None = None,
 ) -> None:
-    for uid in {u for u in user_ids if u is not None}:
+    recipients = {u for u in user_ids if u is not None}
+    for uid in recipients:
         db.add(
             Notification(
                 user_id=uid, type=type, title=title, body=body, deep_link=deep_link
             )
         )
+    # Fan out to registered devices too (no-op when FCM is not configured).
+    # Imported lazily to avoid a circular import at module load.
+    from app.services.device_service import push_to_users
+
+    await push_to_users(
+        db,
+        list(recipients),
+        title=title,
+        body=body,
+        data={"type": type, "deep_link": deep_link or ""},
+    )
 
 
 async def get_job_or_404(db: AsyncSession, job_id: uuid.UUID) -> Job:

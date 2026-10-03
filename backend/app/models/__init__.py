@@ -18,6 +18,7 @@ from app.models.defect import (  # noqa: F401
     Rectification,
     RectificationDecision,
 )
+from app.models.device import DevicePlatform, DeviceToken  # noqa: F401
 from app.models.document import (  # noqa: F401
     Document,
     DocumentType,
@@ -90,4 +91,6 @@ __all__ = [
     "MaterialCategory",
     "Country",
     "SelectionStatus",
+    "DeviceToken",
+    "DevicePlatform",
 ]

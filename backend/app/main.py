@@ -7,6 +7,7 @@ from app.api import ai as ai_api
 from app.api import auth as auth_api
 from app.api import chat as chat_api
 from app.api import defects as defects_api
+from app.api import devices as devices_api
 from app.api import documents as documents_api
 from app.api import integrations as integrations_api
 from app.api import jobs as jobs_api
@@ -48,6 +49,7 @@ app.include_router(integrations_api.router, prefix=_p)
 app.include_router(materials_api.suppliers_router, prefix=_p)
 app.include_router(materials_api.job_materials_router, prefix=_p)
 app.include_router(materials_api.selections_router, prefix=_p)
+app.include_router(devices_api.router, prefix=_p)
 # WebSocket route (not under the REST prefix).
 app.include_router(chat_api.ws_router)
 
@@ -72,6 +74,7 @@ async def health() -> dict:
         "whatsapp_enabled": settings.whatsapp_enabled,
         "llm_provider": settings.llm_provider,
         "google_calendar_configured": bool(settings.google_client_id),
+        "push_enabled": settings.fcm_enabled and bool(settings.fcm_project_id),
     }
 
 

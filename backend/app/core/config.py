@@ -61,6 +61,12 @@ class Settings(BaseSettings):
     google_client_secret: str | None = Field(default=None)
     google_redirect_uri: str | None = Field(default=None)
 
+    # --- Push notifications (FCM HTTP v1) ---
+    fcm_enabled: bool = Field(default=False)
+    # Path to a Firebase service-account JSON, or the JSON contents directly.
+    fcm_service_account: str | None = Field(default=None)
+    fcm_project_id: str | None = Field(default=None)
+
     @property
     def storage_mode(self) -> str:
         """Real S3 when credentials are present, otherwise mock."""

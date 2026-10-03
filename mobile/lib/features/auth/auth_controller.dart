@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/user_role.dart';
 import '../../data/auth_repository.dart';
+import '../push/push_service.dart';
 
 /// Authentication session state.
 sealed class AuthState {
@@ -27,18 +28,24 @@ final authControllerProvider =
 class AuthController extends AsyncNotifier<AuthState> {
   AuthRepository get _repo => ref.read(authRepositoryProvider);
 
+  AuthState _afterAuth(UserRole? role) {
+    if (role == null) return const AuthSignedOut();
+    // Register this device for push once we're authenticated (best-effort).
+    ref.read(pushServiceProvider).start();
+    return AuthSignedIn(role);
+  }
+
   @override
   Future<AuthState> build() async {
     final role = await _repo.currentRole();
-    return role == null ? const AuthSignedOut() : AuthSignedIn(role);
+    return _afterAuth(role);
   }
 
   Future<void> login(String email, String password) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _repo.login(email, password);
-      final role = await _repo.currentRole();
-      return role == null ? const AuthSignedOut() : AuthSignedIn(role);
+      return _afterAuth(await _repo.currentRole());
     });
   }
 
@@ -58,12 +65,12 @@ class AuthController extends AsyncNotifier<AuthState> {
         role: role,
         phone: phone,
       );
-      final current = await _repo.currentRole();
-      return current == null ? const AuthSignedOut() : AuthSignedIn(current);
+      return _afterAuth(await _repo.currentRole());
     });
   }
 
   Future<void> logout() async {
+    await ref.read(pushServiceProvider).stop();
     await _repo.logout();
     state = const AsyncData(AuthSignedOut());
   }
