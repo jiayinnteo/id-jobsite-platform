@@ -5,8 +5,28 @@ import 'package:go_router/go_router.dart';
 
 import 'package:id_jobsite/app/home_shell.dart';
 import 'package:id_jobsite/app/user_role.dart';
+import 'package:id_jobsite/data/auth_repository.dart';
 import 'package:id_jobsite/features/auth/login_screen.dart';
 import 'package:id_jobsite/theme/app_theme.dart';
+
+/// Auth repo stub that reports "signed out" instantly — no HTTP, so tests
+/// don't leave pending network timers.
+class _StubAuthRepository implements AuthRepository {
+  @override
+  Future<UserRole?> currentRole() async => null;
+  @override
+  Future<void> login(String email, String password) async {}
+  @override
+  Future<void> register({
+    required String email,
+    required String password,
+    required String fullName,
+    required UserRole role,
+    String? phone,
+  }) async {}
+  @override
+  Future<void> logout() async {}
+}
 
 Widget _wrap(Widget child) {
   final router = GoRouter(
@@ -14,6 +34,9 @@ Widget _wrap(Widget child) {
     routes: [GoRoute(path: '/', builder: (_, __) => child)],
   );
   return ProviderScope(
+    overrides: [
+      authRepositoryProvider.overrideWithValue(_StubAuthRepository()),
+    ],
     child: MaterialApp.router(
       theme: AppTheme.light,
       routerConfig: router,
@@ -24,7 +47,7 @@ Widget _wrap(Widget child) {
 void main() {
   testWidgets('Login screen renders sign-in form', (tester) async {
     await tester.pumpWidget(_wrap(const LoginScreen()));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Sign in'), findsOneWidget);
