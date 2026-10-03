@@ -32,3 +32,5 @@ To enable real push:
 
 Once configured, notifications fan out to each user's registered devices and
 dead tokens are pruned automatically.
+
+**Full step-by-step guide:** [`docs/push-notifications-setup.md`](../docs/push-notifications-setup.md).

@@ -36,6 +36,7 @@ miscommunication across the renovation lifecycle.
   - [`design.md`](.kiro/specs/id-jobsite-platform/design.md) — architecture, data model, APIs
   - [`tasks.md`](.kiro/specs/id-jobsite-platform/tasks.md) — phased implementation plan
 - **Diagrams** — [`docs/diagrams.md`](docs/diagrams.md) — 6 Mermaid diagrams (architecture, workflow, state machine, AI HITL, ERD, screen map)
+- **Push setup** — [`docs/push-notifications-setup.md`](docs/push-notifications-setup.md) — Firebase/FCM walkthrough
 
 ## Status
 
