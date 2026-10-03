@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 
 import '../features/demo/sample_job_screen.dart';
+import '../features/schedule/contractor_work_screen.dart';
 import 'user_role.dart';
 
 /// A navigation destination for the per-role bottom bar.
@@ -56,7 +57,7 @@ class _HomeShellState extends State<HomeShell> {
       case UserRole.contractor:
         return const [
           NavDest(Icons.home_outlined, 'Home', _Placeholder('Contractor Dashboard')),
-          NavDest(Icons.assignment_outlined, 'Work', _Placeholder('Assigned Work')),
+          NavDest(Icons.assignment_outlined, 'Work', ContractorWorkScreen()),
           NavDest(Icons.event_outlined, 'Schedule', _Placeholder('Schedule')),
           NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
           NavDest(Icons.notifications_none, 'Alerts', _Placeholder('Notifications')),

@@ -22,6 +22,13 @@ from app.models.job import (  # noqa: F401
     OversightFlag,
     OversightReview,
 )
+from app.models.schedule import (  # noqa: F401
+    CalendarEventLink,
+    CalendarLink,
+    SiteVisit,
+    VisitStatus,
+    VisitWorker,
+)
 from app.models.system import AuditLog, Notification  # noqa: F401
 from app.models.user import Company, CompanyType, User, UserRole  # noqa: F401
 
@@ -48,4 +55,9 @@ __all__ = [
     "Photo",
     "Notification",
     "AuditLog",
+    "SiteVisit",
+    "VisitStatus",
+    "VisitWorker",
+    "CalendarLink",
+    "CalendarEventLink",
 ]

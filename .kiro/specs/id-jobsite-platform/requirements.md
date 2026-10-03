@@ -136,7 +136,8 @@ so that site visits and milestones appear in my own calendar and vice versa.
 
 #### Acceptance Criteria
 1. WHEN a user connects their Google account THEN the system SHALL complete OAuth and store the user's calendar tokens securely.
-2. WHEN a schedule item is created or updated in the app THEN the system SHALL create/update the corresponding Google Calendar event for linked users.
+2. WHEN any schedule item or site visit is created or updated in the app THEN the system SHALL automatically create/update the corresponding event on the Google Calendar of each linked participant who has connected their account — no manual export step.
+2a. WHERE a participant has NOT connected Google Calendar THE SYSTEM SHALL keep the schedule in-app and auto-create the event later once they connect.
 3. WHEN a linked Google Calendar event is changed externally THEN the system SHALL reflect the change on the app's schedule.
 4. IF a user disconnects Google Calendar THEN the system SHALL stop syncing and revoke stored tokens.
 5. IF a calendar sync operation fails THEN the system SHALL retry with backoff and surface a persistent error if it continues to fail.
@@ -168,15 +169,17 @@ WhatsApp is not used.
 5. WHERE a message pertains to a defect, rectification, or schedule item THE SYSTEM SHALL allow linking it so members can deep-link to that item.
 6. IF a user is not a member of the job THEN the system SHALL NOT allow them to read or post in that conversation (HTTP 403).
 7. WHERE the AI assistant is enabled THE SYSTEM SHALL be able to draft a reply for a chat message that follows the same human-in-the-loop approval before sending.
+8. WHEN a member sends an in-app chat message AND the job's client has a WhatsApp number AND WhatsApp is enabled THEN the system SHALL also deliver that message to WhatsApp, so no party misses it on either platform.
+9. WHERE a message was mirrored across channels THE SYSTEM SHALL avoid duplicating it (idempotent by channel + external message id) and SHALL show both channels within the single job conversation.
 
-### Requirement 12 — WhatsApp Messaging Integration
+### Requirement 12 — WhatsApp Messaging Integration (bridged with in-app chat)
 **User Story:** As an ID, I want client/contractor conversations to flow over
 WhatsApp with AI-assisted, human-approved replies, so clients communicate on a
 channel they already use.
 
 #### Acceptance Criteria
-1. WHEN an inbound WhatsApp message arrives at the webhook THEN the system SHALL record it against the matching job conversation.
-2. WHEN an approved reply is sent THEN the system SHALL deliver it via the WhatsApp Business Cloud API to the correct recipient.
+1. WHEN an inbound WhatsApp message arrives at the webhook THEN the system SHALL record it against the matching job conversation AND mirror it into the in-app chat so members see it in the app too.
+2. WHEN an approved reply (or a human's own in-app message) is sent THEN the system SHALL deliver it via the WhatsApp Business Cloud API to the correct recipient, keeping the in-app chat and WhatsApp in sync.
 3. WHERE WhatsApp credentials are not configured THE SYSTEM SHALL operate in a disabled/mock mode without breaking other features.
 4. IF a WhatsApp API call fails THEN the system SHALL record the failure and allow retry.
 5. WHEN the webhook receives a verification challenge THEN the system SHALL respond per the WhatsApp verification protocol.

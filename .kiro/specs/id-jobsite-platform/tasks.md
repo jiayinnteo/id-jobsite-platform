@@ -40,7 +40,7 @@ behind mockable adapters.
   - [x] Job-membership `authorize_job_access(user, job)` (creator / client / member / firm-boss), returning 403 for non-members (`app/services/common.py`).
   - _Requirements: 1.3, 1.4, 1.5_
 
-- [ ] 7. Flutter auth flow
+- [x] 7. Flutter auth flow
   - Login/register screens, token storage, dio auth-refresh interceptor, route guards.
   - _Requirements: 1.2, 1.3_
 
@@ -90,12 +90,14 @@ behind mockable adapters.
 
 ## Phase 4 — Scheduling & Contractor Workflow
 
-- [ ] 15. Contractor work queue + site-visit scheduling API
+- [x] 15. Contractor work queue + site-visit scheduling API (+ auto-calendar hook)
   - List assigned rectification work; create/update/cancel visits with worker, date, time; notify ID/client; expose to assigned worker.
-  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+  - On every create/update, enqueue `CalendarPort.upsert_event` for all linked participants (auto Google Calendar linking); store `google_event_id` per user for idempotent updates. CalendarPort has a mock until OAuth lands in Phase 6.
+  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 9.2, 9.2a_
 
-- [ ] 16. Flutter contractor + schedule UI
-  - Contractor work list; schedule a visit; worker's assigned-visit view; job schedule display.
+- [~] 16. Flutter contractor + schedule UI
+  - [x] Contractor work list (live API) + schedule-visit sheet (date/time, calendar auto-link note); schedule repository.
+  - [ ] Worker's assigned-visit view + full job schedule display screen.
   - _Requirements: 6.1, 6.2, 6.5_
 
 ## Phase 5 — Notifications
@@ -136,9 +138,9 @@ behind mockable adapters.
   - Edit/approve/reject endpoints; audit who approved. Works for both in-app chat and WhatsApp replies.
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 11.7_
 
-- [ ] 24. WhatsAppPort + webhook
-  - Webhook verification + inbound receive → conversation/message; send approved reply; mock/disabled mode; failure retry.
-  - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+- [ ] 24. WhatsAppPort + webhook + chat bridge
+  - Webhook verification + inbound receive → conversation/message, mirrored into in-app chat; send in-app/approved messages out to WhatsApp; idempotent de-dup by channel + external id; mock/disabled mode; failure retry.
+  - _Requirements: 11.8, 11.9, 12.1, 12.2, 12.3, 12.4, 12.5_
 
 - [ ] 25. Flutter AI review inbox
   - Pending-review list; edit draft; approve/reject; conversation view.

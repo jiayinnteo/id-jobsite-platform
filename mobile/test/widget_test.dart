@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:id_jobsite/app/home_shell.dart';
 import 'package:id_jobsite/app/user_role.dart';
-import 'package:id_jobsite/app/welcome_screen.dart';
+import 'package:id_jobsite/features/auth/login_screen.dart';
 import 'package:id_jobsite/theme/app_theme.dart';
 
 Widget _wrap(Widget child) {
@@ -22,14 +22,13 @@ Widget _wrap(Widget child) {
 }
 
 void main() {
-  testWidgets('Welcome screen shows all roles', (tester) async {
-    await tester.pumpWidget(_wrap(const WelcomeScreen()));
+  testWidgets('Login screen renders sign-in form', (tester) async {
+    await tester.pumpWidget(_wrap(const LoginScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome'), findsOneWidget);
-    for (final role in UserRole.values) {
-      expect(find.text(role.label), findsOneWidget);
-    }
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
   });
 
   testWidgets('ID home shell renders a 5-item bottom nav', (tester) async {
@@ -49,10 +48,11 @@ void main() {
     expect(find.text('Reviews'), findsWidgets);
   });
 
-  testWidgets('Client shell exposes a Review entry point', (tester) async {
-    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.client)));
+  testWidgets('Contractor shell exposes Work and Schedule', (tester) async {
+    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.contractor)));
     await tester.pumpAndSettle();
 
-    expect(find.text('Review'), findsWidgets);
+    expect(find.text('Work'), findsWidgets);
+    expect(find.text('Schedule'), findsWidgets);
   });
 }

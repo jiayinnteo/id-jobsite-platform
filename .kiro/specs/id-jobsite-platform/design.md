@@ -223,6 +223,23 @@ Each port has a `Mock*` implementation enabled when credentials are absent, so t
 whole app runs end-to-end in local dev and tests without external accounts. This
 directly satisfies "operate without WhatsApp/LLM credentials" requirements.
 
+### Chat ↔ WhatsApp bridge
+A job has **one** `Conversation` that spans both channels so nothing is missed:
+- **WhatsApp → app:** webhook stores the inbound `Message` and it appears in the
+  in-app chat immediately (realtime push).
+- **App → WhatsApp:** when a member sends an in-app message (or an AI draft is
+  approved), a worker job calls `WhatsAppPort.send()` to the client's number.
+- **De-duplication:** messages carry a `channel` + `external_id`; the bridge is
+  idempotent so a mirrored message is never echoed back and re-sent in a loop.
+- AI replies still require human approval (Req 10); a human's own message sends
+  directly on both channels.
+
+### Auto Google Calendar linking
+Scheduling is calendar-first: creating/updating a `ScheduleItem` or `SiteVisit`
+enqueues a `CalendarPort.upsert_event()` for **every linked participant** who has
+connected Google (stored `google_event_id` per user keeps updates idempotent). If a
+participant connects later, a backfill creates their events. No manual export.
+
 ---
 
 ## Security & RBAC
