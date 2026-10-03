@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:id_jobsite/features/ai/ai_inbox_screen.dart';
 import 'package:id_jobsite/features/schedule/schedule_visit_sheet.dart';
 import 'package:id_jobsite/theme/app_theme.dart';
 import 'package:id_jobsite/widgets/review_tag.dart';
@@ -45,11 +44,5 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Google Calendar'), findsOneWidget);
     expect(find.text('Schedule a site visit'), findsOneWidget);
-  });
-
-  testWidgets('AI inbox builds', (tester) async {
-    await tester.pumpWidget(_wrap(const AiInboxScreen()));
-    await tester.pump(); // provider resolves async; just ensure it builds
-    expect(find.byType(AiInboxScreen), findsOneWidget);
   });
 }

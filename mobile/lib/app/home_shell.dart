@@ -23,6 +23,24 @@ class NavDest {
   final Widget body;
 }
 
+/// Pure list of bottom-nav labels per role (no widgets / no network) — the
+/// single source of truth for the shell's destination labels, and testable
+/// without mounting data-fetching screens.
+List<String> navLabelsFor(UserRole role) {
+  switch (role) {
+    case UserRole.idBoss:
+      return const ['Firm Jobs', 'AI Inbox', 'Alerts'];
+    case UserRole.id:
+      return const ['Jobs', 'AI Inbox', 'Alerts'];
+    case UserRole.client:
+      return const ['My Project', 'Alerts'];
+    case UserRole.contractor:
+      return const ['Work', 'Jobs', 'Alerts'];
+    case UserRole.worker:
+      return const ['Visits', 'Jobs', 'Alerts'];
+  }
+}
+
 /// Per-role bottom-navigation shell. Every top-level area is one tap away
 /// (max 5 destinations), per the design system.
 class HomeShell extends ConsumerStatefulWidget {

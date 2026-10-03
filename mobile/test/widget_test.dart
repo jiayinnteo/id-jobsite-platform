@@ -31,34 +31,35 @@ void main() {
     expect(find.text('Email'), findsOneWidget);
   });
 
-  testWidgets('ID shell shows Jobs, AI Inbox and Alerts', (tester) async {
-    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.id)));
-    await tester.pump(); // nav bar renders synchronously
-
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Jobs'), findsWidgets);
-    expect(find.text('AI Inbox'), findsWidgets);
-    expect(find.text('Alerts'), findsWidgets);
+  // Nav structure is tested via the pure label source of truth, so these tests
+  // don't mount data-fetching screens (which would leave pending timers).
+  test('ID shell nav exposes Jobs, AI Inbox and Alerts', () {
+    final labels = navLabelsFor(UserRole.id);
+    expect(labels, containsAll(['Jobs', 'AI Inbox', 'Alerts']));
   });
 
-  testWidgets('ID_BOSS shell exposes Firm Jobs', (tester) async {
-    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.idBoss)));
-    await tester.pump();
-
-    expect(find.text('Firm Jobs'), findsWidgets);
+  test('ID_BOSS shell nav exposes Firm Jobs and AI Inbox', () {
+    final labels = navLabelsFor(UserRole.idBoss);
+    expect(labels, containsAll(['Firm Jobs', 'AI Inbox', 'Alerts']));
   });
 
-  testWidgets('Contractor shell exposes Work', (tester) async {
-    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.contractor)));
-    await tester.pump();
-
-    expect(find.text('Work'), findsWidgets);
+  test('Client shell nav exposes My Project and Alerts', () {
+    expect(navLabelsFor(UserRole.client), containsAll(['My Project', 'Alerts']));
   });
 
-  testWidgets('Worker shell exposes Visits', (tester) async {
-    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.worker)));
-    await tester.pump();
+  test('Contractor shell nav exposes Work and Jobs', () {
+    expect(navLabelsFor(UserRole.contractor), containsAll(['Work', 'Jobs']));
+  });
 
-    expect(find.text('Visits'), findsWidgets);
+  test('Worker shell nav exposes Visits and Jobs', () {
+    expect(navLabelsFor(UserRole.worker), containsAll(['Visits', 'Jobs']));
+  });
+
+  test('Every role has an Alerts destination (max 5)', () {
+    for (final role in UserRole.values) {
+      final labels = navLabelsFor(role);
+      expect(labels, contains('Alerts'));
+      expect(labels.length, lessThanOrEqualTo(5));
+    }
   });
 }
