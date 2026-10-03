@@ -37,9 +37,7 @@ async def _authorize_firm(db: AsyncSession, user: User, conversation_id: uuid.UU
     return convo
 
 
-async def generate_draft(
-    db: AsyncSession, user: User, conversation_id: uuid.UUID
-) -> AIDraft:
+async def generate_draft(db: AsyncSession, user: User, conversation_id: uuid.UUID) -> AIDraft:
     convo = await _authorize_firm(db, user, conversation_id)
 
     recent = await db.scalars(
@@ -62,7 +60,10 @@ async def generate_draft(
     )
     db.add(draft)
     await write_audit(
-        db, actor_id=user.id, action="ai.draft_generate", target_type="ai_draft",
+        db,
+        actor_id=user.id,
+        action="ai.draft_generate",
+        target_type="ai_draft",
         target_id=str(convo.id),
     )
     await db.commit()
@@ -106,13 +107,14 @@ async def approve_draft(db: AsyncSession, user: User, draft_id: uuid.UUID) -> AI
 
     body = draft.edited_text or draft.draft_text
     # Send via chat service (also bridges to WhatsApp).
-    await chat_service.send_message(
-        db, user, draft.conversation_id, MessageCreate(body=body)
-    )
+    await chat_service.send_message(db, user, draft.conversation_id, MessageCreate(body=body))
     draft.status = DraftStatus.SENT
     draft.reviewed_by = user.id
     await write_audit(
-        db, actor_id=user.id, action="ai.draft_approve", target_type="ai_draft",
+        db,
+        actor_id=user.id,
+        action="ai.draft_approve",
+        target_type="ai_draft",
         target_id=str(draft.id),
     )
     await db.commit()
@@ -130,7 +132,10 @@ async def reject_draft(db: AsyncSession, user: User, draft_id: uuid.UUID) -> AID
     draft.status = DraftStatus.REJECTED
     draft.reviewed_by = user.id
     await write_audit(
-        db, actor_id=user.id, action="ai.draft_reject", target_type="ai_draft",
+        db,
+        actor_id=user.id,
+        action="ai.draft_reject",
+        target_type="ai_draft",
         target_id=str(draft.id),
     )
     await db.commit()

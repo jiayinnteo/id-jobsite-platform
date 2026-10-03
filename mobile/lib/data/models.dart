@@ -1,4 +1,4 @@
-/// Lightweight data models mirroring the backend schemas.
+// Lightweight data models mirroring the backend schemas.
 
 class Job {
   Job({

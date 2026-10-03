@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 
-import '../../widgets/colour_swatch.dart';
 import '../../widgets/states.dart';
 
 /// A surface→material mapping applied to the 3D model for preview.
@@ -20,12 +19,19 @@ class SurfacePreview {
 }
 
 /// Converts a #RRGGBB hex to normalized RGBA (0..1) for model-viewer's
-/// setBaseColorFactor. Returns null if unparseable.
+/// setBaseColorFactor. Returns null if unparseable. Parses the hex directly to
+/// avoid version-dependent Color channel accessors.
 List<double>? _rgbaFactor(String? hex) {
-  final c = colourFromHex(hex);
-  if (c == null) return null;
-  // ignore: deprecated_member_use
-  return [c.red / 255.0, c.green / 255.0, c.blue / 255.0, 1.0];
+  if (hex == null) return null;
+  var h = hex.replaceAll('#', '').trim();
+  if (h.length == 8) h = h.substring(2); // drop alpha if present
+  if (h.length != 6) return null;
+  final v = int.tryParse(h, radix: 16);
+  if (v == null) return null;
+  final r = ((v >> 16) & 0xFF) / 255.0;
+  final g = ((v >> 8) & 0xFF) / 255.0;
+  final b = (v & 0xFF) / 255.0;
+  return [r, g, b, 1.0];
 }
 
 /// Builds JS (run inside <model-viewer>) that recolours named materials once

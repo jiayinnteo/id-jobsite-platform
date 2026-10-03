@@ -27,5 +27,5 @@ async def test_catalogues_are_non_empty_and_carry_source_url():
 @pytest.mark.asyncio
 async def test_known_suppliers_present():
     keys = {s.info.key for s in all_suppliers()}
-    assert "eco_plus" in keys       # ECO+ vinyl
-    assert "nippon_paint" in keys   # Nippon paint
+    assert "eco_plus" in keys  # ECO+ vinyl
+    assert "nippon_paint" in keys  # Nippon paint

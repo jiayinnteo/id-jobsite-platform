@@ -40,15 +40,11 @@ def _create_token(subject: str, token_type: str, expires: timedelta) -> str:
 
 
 def create_access_token(subject: str) -> str:
-    return _create_token(
-        subject, ACCESS, timedelta(minutes=settings.access_token_expire_minutes)
-    )
+    return _create_token(subject, ACCESS, timedelta(minutes=settings.access_token_expire_minutes))
 
 
 def create_refresh_token(subject: str) -> str:
-    return _create_token(
-        subject, REFRESH, timedelta(days=settings.refresh_token_expire_days)
-    )
+    return _create_token(subject, REFRESH, timedelta(days=settings.refresh_token_expire_days))
 
 
 def decode_token(token: str, expected_type: str | None = None) -> dict:

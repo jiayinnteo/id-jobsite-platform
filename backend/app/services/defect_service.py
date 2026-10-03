@@ -52,25 +52,38 @@ async def create_defect(
     await authorize_job_access(db, user, job)
 
     defect = Defect(
-        job_id=job_id, title=data.title, description=data.description,
-        location=data.location, status=DefectStatus.OPEN, created_by=user.id,
+        job_id=job_id,
+        title=data.title,
+        description=data.description,
+        location=data.location,
+        status=DefectStatus.OPEN,
+        created_by=user.id,
     )
     db.add(defect)
     await db.flush()
     db.add(
         DefectStatusHistory(
-            defect_id=defect.id, from_status=None,
-            to_status=DefectStatus.OPEN, changed_by=user.id,
+            defect_id=defect.id,
+            from_status=None,
+            to_status=DefectStatus.OPEN,
+            changed_by=user.id,
         )
     )
     await notify(
-        db, [job.created_by], type="defect.created",
-        title=f"New defect: {data.title}", body=data.location,
+        db,
+        [job.created_by],
+        type="defect.created",
+        title=f"New defect: {data.title}",
+        body=data.location,
         deep_link=f"/defects/{defect.id}",
     )
     await write_audit(
-        db, actor_id=user.id, action="defect.create", target_type="defect",
-        target_id=str(defect.id), job_id=job_id,
+        db,
+        actor_id=user.id,
+        action="defect.create",
+        target_type="defect",
+        target_id=str(defect.id),
+        job_id=job_id,
     )
     await db.commit()
     await db.refresh(defect)
@@ -140,8 +153,11 @@ async def assign_defect(
     # Open a rectification record for the accept/reject lifecycle.
     db.add(Rectification(defect_id=defect.id, contractor_id=data.contractor_id))
     await notify(
-        db, [data.contractor_id], type="defect.assigned",
-        title=f"Defect assigned: {defect.title}", deep_link=f"/defects/{defect.id}",
+        db,
+        [data.contractor_id],
+        type="defect.assigned",
+        title=f"Defect assigned: {defect.title}",
+        deep_link=f"/defects/{defect.id}",
     )
     await db.commit()
     await db.refresh(defect)
@@ -161,13 +177,20 @@ async def _transition(
     defect.status = to
     db.add(
         DefectStatusHistory(
-            defect_id=defect.id, from_status=frm, to_status=to,
-            changed_by=user.id, reason=reason,
+            defect_id=defect.id,
+            from_status=frm,
+            to_status=to,
+            changed_by=user.id,
+            reason=reason,
         )
     )
     await write_audit(
-        db, actor_id=user.id, action="defect.status", target_type="defect",
-        target_id=str(defect.id), job_id=defect.job_id,
+        db,
+        actor_id=user.id,
+        action="defect.status",
+        target_type="defect",
+        target_id=str(defect.id),
+        job_id=defect.job_id,
         metadata={"from": frm.value, "to": to.value},
     )
 
@@ -187,7 +210,9 @@ async def update_status(
         )
     await _transition(db, user, defect, data.to_status, data.reason)
     await notify(
-        db, await member_user_ids(db, job), type="defect.status",
+        db,
+        await member_user_ids(db, job),
+        type="defect.status",
         title=f"Defect {data.to_status.value.replace('_', ' ').lower()}: {defect.title}",
         deep_link=f"/defects/{defect.id}",
     )
@@ -207,9 +232,7 @@ async def decide_rectification(
     job = await get_job_or_404(db, defect.job_id)
 
     if client.id != job.client_id:
-        raise ForbiddenError(
-            "Only the job's client can accept or reject work.", code="client_only"
-        )
+        raise ForbiddenError("Only the job's client can accept or reject work.", code="client_only")
     if defect.status != DefectStatus.RECTIFIED:
         raise ConflictError(
             "Work must be marked Rectified before a decision.", code="not_rectified"
@@ -233,9 +256,12 @@ async def decide_rectification(
     if data.decision == RectificationDecision.REJECTED and defect.assigned_contractor_id:
         recipients.append(defect.assigned_contractor_id)
     await notify(
-        db, recipients, type="rectification.decision",
+        db,
+        recipients,
+        type="rectification.decision",
         title=f"Client {data.decision.value.lower()} the rectification: {defect.title}",
-        body=data.reason, deep_link=f"/defects/{defect.id}",
+        body=data.reason,
+        deep_link=f"/defects/{defect.id}",
     )
     await db.commit()
     await db.refresh(rect)
@@ -243,6 +269,7 @@ async def decide_rectification(
 
 
 # --- Site photos (Requirement 7) ---
+
 
 async def create_photo(
     db: AsyncSession, user: User, job_id: uuid.UUID, data: PhotoCreate
@@ -264,13 +291,20 @@ async def create_photo(
     storage = get_storage()
     key = storage.generate_key(f"jobs/{job_id}/photos", data.filename)
     photo = Photo(
-        job_id=job_id, defect_id=data.defect_id, storage_key=key,
-        caption=data.caption, uploaded_by=user.id,
+        job_id=job_id,
+        defect_id=data.defect_id,
+        storage_key=key,
+        caption=data.caption,
+        uploaded_by=user.id,
     )
     db.add(photo)
     await write_audit(
-        db, actor_id=user.id, action="photo.upload", target_type="photo",
-        target_id=str(photo.id), job_id=job_id,
+        db,
+        actor_id=user.id,
+        action="photo.upload",
+        target_type="photo",
+        target_id=str(photo.id),
+        job_id=job_id,
     )
     await db.commit()
     await db.refresh(photo)

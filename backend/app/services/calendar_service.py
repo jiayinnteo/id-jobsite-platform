@@ -75,9 +75,7 @@ async def disconnect(db: AsyncSession, user: User) -> None:
     if token:
         try:
             async with httpx.AsyncClient(timeout=10) as client:
-                await client.post(
-                    "https://oauth2.googleapis.com/revoke", data={"token": token}
-                )
+                await client.post("https://oauth2.googleapis.com/revoke", data={"token": token})
         except Exception:
             pass
     link.status = "DISCONNECTED"

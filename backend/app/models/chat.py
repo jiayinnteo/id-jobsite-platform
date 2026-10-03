@@ -53,9 +53,7 @@ class Message(Base):
     direction: Mapped[MessageDirection] = mapped_column(
         SAEnum(MessageDirection, name="message_direction"), nullable=False
     )
-    sender_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id"), nullable=True
-    )
+    sender_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     attachment_ref: Mapped[str | None] = mapped_column(String(500), nullable=True)
     linked_entity: Mapped[str | None] = mapped_column(String(120), nullable=True)
@@ -66,9 +64,7 @@ class Message(Base):
 
 class MessageRead(Base):
     __tablename__ = "message_reads"
-    __table_args__ = (
-        UniqueConstraint("message_id", "user_id", name="uq_message_read"),
-    )
+    __table_args__ = (UniqueConstraint("message_id", "user_id", name="uq_message_read"),)
 
     message_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE"), nullable=False, index=True
@@ -99,6 +95,4 @@ class AIDraft(Base):
         default=DraftStatus.PENDING_REVIEW,
         nullable=False,
     )
-    reviewed_by: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id"), nullable=True
-    )
+    reviewed_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)

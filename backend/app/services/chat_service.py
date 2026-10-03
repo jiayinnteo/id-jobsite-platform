@@ -44,17 +44,13 @@ async def get_or_create_conversation(db: AsyncSession, job_id: uuid.UUID) -> Con
     return convo
 
 
-async def get_conversation_for_job(
-    db: AsyncSession, user: User, job_id: uuid.UUID
-) -> Conversation:
+async def get_conversation_for_job(db: AsyncSession, user: User, job_id: uuid.UUID) -> Conversation:
     job = await get_job_or_404(db, job_id)
     await authorize_job_access(db, user, job)
     return await get_or_create_conversation(db, job_id)
 
 
-async def list_messages(
-    db: AsyncSession, user: User, conversation_id: uuid.UUID
-) -> list[Message]:
+async def list_messages(db: AsyncSession, user: User, conversation_id: uuid.UUID) -> list[Message]:
     convo = await db.get(Conversation, conversation_id)
     if not convo:
         raise NotFoundError("Conversation not found.", code="conversation_not_found")
@@ -78,9 +74,7 @@ async def _broadcast(message: Message) -> None:
             "direction": message.direction.value,
             "sender_id": str(message.sender_id) if message.sender_id else None,
             "body": message.body,
-            "created_at": message.created_at.isoformat()
-            if message.created_at
-            else None,
+            "created_at": message.created_at.isoformat() if message.created_at else None,
         },
     )
 
@@ -113,12 +107,20 @@ async def send_message(
     # Notify offline members (online members get it via WebSocket).
     recipients = [uid for uid in await member_user_ids(db, job) if uid != user.id]
     await notify(
-        db, recipients, type="chat.message", title="New message", body=data.body,
+        db,
+        recipients,
+        type="chat.message",
+        title="New message",
+        body=data.body,
         deep_link=f"/jobs/{job.id}/chat",
     )
     await write_audit(
-        db, actor_id=user.id, action="chat.send", target_type="message",
-        target_id=str(message.id), job_id=job.id,
+        db,
+        actor_id=user.id,
+        action="chat.send",
+        target_type="message",
+        target_id=str(message.id),
+        job_id=job.id,
     )
     await db.commit()
     await db.refresh(message)
@@ -126,9 +128,7 @@ async def send_message(
     return message
 
 
-async def _bridge_to_whatsapp(
-    db: AsyncSession, job: Job, convo: Conversation, body: str
-) -> None:
+async def _bridge_to_whatsapp(db: AsyncSession, job: Job, convo: Conversation, body: str) -> None:
     """Deliver an in-app message to the client's WhatsApp, if enabled."""
     wa = get_whatsapp()
     if not wa.enabled or job.client_id is None:
@@ -139,9 +139,7 @@ async def _bridge_to_whatsapp(
     wa_id = await wa.send_text(to_number=client.phone, body=body)
     # Record the mirrored WhatsApp copy (de-dup on channel+external_id).
     exists = await db.scalar(
-        select(Message).where(
-            Message.channel == Channel.WHATSAPP, Message.external_id == wa_id
-        )
+        select(Message).where(Message.channel == Channel.WHATSAPP, Message.external_id == wa_id)
     )
     if not exists:
         db.add(
@@ -181,8 +179,12 @@ async def ingest_whatsapp_inbound(
     db.add(message)
     job = await get_job_or_404(db, job_id)
     await notify(
-        db, await member_user_ids(db, job), type="chat.message",
-        title="New WhatsApp message", body=body, deep_link=f"/jobs/{job_id}/chat",
+        db,
+        await member_user_ids(db, job),
+        type="chat.message",
+        title="New WhatsApp message",
+        body=body,
+        deep_link=f"/jobs/{job_id}/chat",
     )
     await db.commit()
     await db.refresh(message)
@@ -190,17 +192,11 @@ async def ingest_whatsapp_inbound(
     return message
 
 
-async def mark_conversation_read(
-    db: AsyncSession, user: User, conversation_id: uuid.UUID
-) -> None:
-    msgs = await db.scalars(
-        select(Message.id).where(Message.conversation_id == conversation_id)
-    )
+async def mark_conversation_read(db: AsyncSession, user: User, conversation_id: uuid.UUID) -> None:
+    msgs = await db.scalars(select(Message.id).where(Message.conversation_id == conversation_id))
     for mid in msgs.all():
         exists = await db.scalar(
-            select(MessageRead).where(
-                MessageRead.message_id == mid, MessageRead.user_id == user.id
-            )
+            select(MessageRead).where(MessageRead.message_id == mid, MessageRead.user_id == user.id)
         )
         if not exists:
             db.add(MessageRead(message_id=mid, user_id=user.id))

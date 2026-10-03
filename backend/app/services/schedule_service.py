@@ -117,13 +117,20 @@ async def create_visit(
 
     recipients = await member_user_ids(db, job) + list(data.worker_ids)
     await notify(
-        db, recipients, type="visit.scheduled",
+        db,
+        recipients,
+        type="visit.scheduled",
         title=f"Site visit scheduled for {data.scheduled_date.isoformat()}",
-        body=job.name, deep_link=f"/jobs/{job_id}/visits/{visit.id}",
+        body=job.name,
+        deep_link=f"/jobs/{job_id}/visits/{visit.id}",
     )
     await write_audit(
-        db, actor_id=contractor.id, action="visit.create", target_type="site_visit",
-        target_id=str(visit.id), job_id=job_id,
+        db,
+        actor_id=contractor.id,
+        action="visit.create",
+        target_type="site_visit",
+        target_id=str(visit.id),
+        job_id=job_id,
     )
     await db.commit()
     await db.refresh(visit, attribute_names=["workers"])
@@ -162,13 +169,20 @@ async def update_visit(
         await _auto_link_calendar(db, job, visit)
 
     await notify(
-        db, await member_user_ids(db, job), type="visit.updated",
-        title="A site visit was updated", body=job.name,
+        db,
+        await member_user_ids(db, job),
+        type="visit.updated",
+        title="A site visit was updated",
+        body=job.name,
         deep_link=f"/jobs/{job.id}/visits/{visit.id}",
     )
     await write_audit(
-        db, actor_id=user.id, action="visit.update", target_type="site_visit",
-        target_id=str(visit.id), job_id=job.id,
+        db,
+        actor_id=user.id,
+        action="visit.update",
+        target_type="site_visit",
+        target_id=str(visit.id),
+        job_id=job.id,
         metadata={"status": visit.status.value},
     )
     await db.commit()
@@ -233,9 +247,7 @@ async def contractor_work_queue(db: AsyncSession, contractor: User) -> list[dict
 
 async def worker_visits(db: AsyncSession, worker: User) -> list[SiteVisit]:
     """Visits the worker is assigned to."""
-    visit_ids = select(VisitWorker.site_visit_id).where(
-        VisitWorker.worker_id == worker.id
-    )
+    visit_ids = select(VisitWorker.site_visit_id).where(VisitWorker.worker_id == worker.id)
     rows = await db.scalars(
         select(SiteVisit).where(SiteVisit.id.in_(visit_ids)).order_by(SiteVisit.scheduled_date)
     )

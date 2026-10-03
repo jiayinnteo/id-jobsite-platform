@@ -49,9 +49,7 @@ async def list_products(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    return await material_service.list_products(
-        db, category=category, supplier_id=supplier_id
-    )
+    return await material_service.list_products(db, category=category, supplier_id=supplier_id)
 
 
 @job_materials_router.get("/{job_id}/materials", response_model=list[SelectionOut])
@@ -92,14 +90,10 @@ async def map_surface(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    return await material_service.map_surface(
-        db, user, selection_id, data.model_surface
-    )
+    return await material_service.map_surface(db, user, selection_id, data.model_surface)
 
 
-@job_materials_router.get(
-    "/{job_id}/materials/preview", response_model=list[PreviewMaterial]
-)
+@job_materials_router.get("/{job_id}/materials/preview", response_model=list[PreviewMaterial])
 async def preview_materials(
     job_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),

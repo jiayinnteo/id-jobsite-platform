@@ -18,9 +18,7 @@ async def register(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    return await device_service.register_token(
-        db, user, token=data.token, platform=data.platform
-    )
+    return await device_service.register_token(db, user, token=data.token, platform=data.platform)
 
 
 @router.post("/unregister", status_code=status.HTTP_204_NO_CONTENT)

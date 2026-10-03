@@ -34,9 +34,7 @@ async def create_job(
 
 
 @router.get("", response_model=list[JobOut])
-async def list_jobs(
-    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)
-):
+async def list_jobs(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
     return await job_service.list_jobs_for_user(db, user)
 
 

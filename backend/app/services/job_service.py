@@ -45,14 +45,14 @@ async def create_job(db: AsyncSession, creator: User, data: JobCreate) -> Job:
     # Creator is implicitly a member.
     db.add(JobMember(job_id=job.id, user_id=creator.id, role_in_job=creator.role))
     if data.client_id:
-        db.add(
-            JobMember(
-                job_id=job.id, user_id=data.client_id, role_in_job=UserRole.CLIENT
-            )
-        )
+        db.add(JobMember(job_id=job.id, user_id=data.client_id, role_in_job=UserRole.CLIENT))
     await write_audit(
-        db, actor_id=creator.id, action="job.create", target_type="job",
-        target_id=str(job.id), job_id=job.id,
+        db,
+        actor_id=creator.id,
+        action="job.create",
+        target_type="job",
+        target_id=str(job.id),
+        job_id=job.id,
     )
     await db.commit()
     await db.refresh(job)
@@ -68,9 +68,7 @@ async def list_jobs_for_user(db: AsyncSession, user: User) -> list[Job]:
     member_job_ids = select(JobMember.job_id).where(JobMember.user_id == user.id)
     rows = await db.scalars(
         select(Job).where(
-            (Job.id.in_(member_job_ids))
-            | (Job.created_by == user.id)
-            | (Job.client_id == user.id)
+            (Job.id.in_(member_job_ids)) | (Job.created_by == user.id) | (Job.client_id == user.id)
         )
     )
     return list(rows.all())
@@ -82,9 +80,7 @@ async def get_job(db: AsyncSession, user: User, job_id: uuid.UUID) -> Job:
     return job
 
 
-async def update_job(
-    db: AsyncSession, user: User, job_id: uuid.UUID, data: JobUpdate
-) -> Job:
+async def update_job(db: AsyncSession, user: User, job_id: uuid.UUID, data: JobUpdate) -> Job:
     job = await get_job_or_404(db, job_id)
     if user.role not in (UserRole.ID, UserRole.ID_BOSS):
         raise ForbiddenError("Only the ID firm can update a job.", code="id_only")
@@ -97,8 +93,12 @@ async def update_job(
     if data.status is not None:
         job.status = data.status
     await write_audit(
-        db, actor_id=user.id, action="job.update", target_type="job",
-        target_id=str(job.id), job_id=job.id,
+        db,
+        actor_id=user.id,
+        action="job.update",
+        target_type="job",
+        target_id=str(job.id),
+        job_id=job.id,
         metadata={"status": job.status.value},
     )
     await db.commit()
@@ -115,9 +115,7 @@ async def add_member(
     await authorize_job_access(db, user, job)
 
     exists = await db.scalar(
-        select(JobMember).where(
-            JobMember.job_id == job_id, JobMember.user_id == data.user_id
-        )
+        select(JobMember).where(JobMember.job_id == job_id, JobMember.user_id == data.user_id)
     )
     if exists:
         raise ConflictError("User is already a member of this job.", code="already_member")
@@ -127,13 +125,20 @@ async def add_member(
     if data.role_in_job == UserRole.CLIENT and job.client_id is None:
         job.client_id = data.user_id
     await notify(
-        db, [data.user_id], type="job.added",
-        title="You've been added to a job", body=job.name,
+        db,
+        [data.user_id],
+        type="job.added",
+        title="You've been added to a job",
+        body=job.name,
         deep_link=f"/jobs/{job.id}",
     )
     await write_audit(
-        db, actor_id=user.id, action="job.add_member", target_type="job_member",
-        target_id=str(data.user_id), job_id=job.id,
+        db,
+        actor_id=user.id,
+        action="job.add_member",
+        target_type="job_member",
+        target_id=str(data.user_id),
+        job_id=job.id,
     )
     await db.commit()
     await db.refresh(member)
@@ -142,27 +147,32 @@ async def add_member(
 
 # --- ID_BOSS oversight (Requirement 15) ---
 
+
 async def add_oversight_review(
     db: AsyncSession, boss: User, job_id: uuid.UUID, data: OversightReviewCreate
 ) -> OversightReview:
     job = await get_job_or_404(db, job_id)
     if boss.role != UserRole.ID_BOSS or job.firm_id != boss.company_id:
-        raise ForbiddenError(
-            "Only the firm's boss can add oversight reviews.", code="boss_only"
-        )
-    review = OversightReview(
-        job_id=job_id, boss_id=boss.id, flag=data.flag, note=data.note
-    )
+        raise ForbiddenError("Only the firm's boss can add oversight reviews.", code="boss_only")
+    review = OversightReview(job_id=job_id, boss_id=boss.id, flag=data.flag, note=data.note)
     db.add(review)
     # Notify the ID who runs the job (internal only).
     await notify(
-        db, [job.created_by], type="oversight.review",
+        db,
+        [job.created_by],
+        type="oversight.review",
         title=f"Boss review: {data.flag.value.replace('_', ' ').title()}",
-        body=data.note, deep_link=f"/jobs/{job.id}",
+        body=data.note,
+        deep_link=f"/jobs/{job.id}",
     )
     await write_audit(
-        db, actor_id=boss.id, action="job.oversight_review", target_type="job",
-        target_id=str(job.id), job_id=job.id, metadata={"flag": data.flag.value},
+        db,
+        actor_id=boss.id,
+        action="job.oversight_review",
+        target_type="job",
+        target_id=str(job.id),
+        job_id=job.id,
+        metadata={"flag": data.flag.value},
     )
     await db.commit()
     await db.refresh(review)
@@ -171,6 +181,7 @@ async def add_oversight_review(
 
 # --- Client reviews (Requirement 16) ---
 
+
 async def upsert_job_review(
     db: AsyncSession, client: User, job_id: uuid.UUID, data: JobReviewUpsert
 ) -> JobReview:
@@ -178,14 +189,10 @@ async def upsert_job_review(
     if client.id != job.client_id:
         raise ForbiddenError("Only the job's client can review it.", code="client_only")
     if job.status != JobStatus.COMPLETED:
-        raise ConflictError(
-            "You can only review a completed job.", code="job_not_completed"
-        )
+        raise ConflictError("You can only review a completed job.", code="job_not_completed")
 
     review = await db.scalar(
-        select(JobReview).where(
-            JobReview.job_id == job_id, JobReview.client_id == client.id
-        )
+        select(JobReview).where(JobReview.job_id == job_id, JobReview.client_id == client.id)
     )
     if review:
         review.rating = data.rating
@@ -200,13 +207,21 @@ async def upsert_job_review(
 
     notify_ids = [job.created_by]
     await notify(
-        db, notify_ids, type="job.reviewed",
-        title=f"Client left a {data.rating}★ review", body=data.comment,
+        db,
+        notify_ids,
+        type="job.reviewed",
+        title=f"Client left a {data.rating}★ review",
+        body=data.comment,
         deep_link=f"/jobs/{job.id}",
     )
     await write_audit(
-        db, actor_id=client.id, action=action, target_type="job",
-        target_id=str(job.id), job_id=job.id, metadata={"rating": data.rating},
+        db,
+        actor_id=client.id,
+        action=action,
+        target_type="job",
+        target_id=str(job.id),
+        job_id=job.id,
+        metadata={"rating": data.rating},
     )
     await db.commit()
     await db.refresh(review)

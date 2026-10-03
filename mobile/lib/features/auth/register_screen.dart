@@ -89,7 +89,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               Text('I am a', style: Theme.of(context).textTheme.labelLarge),
               const SizedBox(height: 8),
               DropdownButtonFormField<UserRole>(
-                value: _role,
+                initialValue: _role,
                 items: [
                   for (final r in UserRole.values)
                     DropdownMenuItem(value: r, child: Text(r.label)),

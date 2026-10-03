@@ -23,7 +23,11 @@ class PushPort(ABC):
 
     @abstractmethod
     async def send(
-        self, *, device_tokens: list[str], title: str, body: str | None,
+        self,
+        *,
+        device_tokens: list[str],
+        title: str,
+        body: str | None,
         data: dict | None = None,
     ) -> list[str]:
         """Send to the given tokens; return tokens that are now invalid

@@ -31,12 +31,12 @@ async def sync_suppliers(db: AsyncSession) -> int:
     count = 0
     for supplier in all_suppliers():
         info = supplier.info
-        row = await db.scalar(
-            select(MaterialSupplier).where(MaterialSupplier.key == info.key)
-        )
+        row = await db.scalar(select(MaterialSupplier).where(MaterialSupplier.key == info.key))
         if not row:
             row = MaterialSupplier(
-                key=info.key, name=info.name, country=info.country,
+                key=info.key,
+                name=info.name,
+                country=info.country,
                 website_url=info.website_url,
             )
             db.add(row)
@@ -55,10 +55,15 @@ async def sync_suppliers(db: AsyncSession) -> int:
                 continue
             db.add(
                 MaterialProduct(
-                    supplier_id=row.id, category=item.category, name=item.name,
-                    product_code=item.product_code, colour=item.colour,
-                    colour_hex=item.colour_hex, finish=item.finish,
-                    swatch_url=item.swatch_url, source_url=item.source_url,
+                    supplier_id=row.id,
+                    category=item.category,
+                    name=item.name,
+                    product_code=item.product_code,
+                    colour=item.colour,
+                    colour_hex=item.colour_hex,
+                    finish=item.finish,
+                    swatch_url=item.swatch_url,
+                    source_url=item.source_url,
                 )
             )
             count += 1
@@ -119,22 +124,36 @@ async def create_selection(
             swatch_url = product.swatch_url
 
     selection = MaterialSelection(
-        job_id=job_id, product_id=data.product_id, category=data.category,
-        area=data.area, model_surface=data.model_surface, swatch_url=swatch_url,
-        colour=colour, colour_hex=colour_hex, note=data.note,
-        status=SelectionStatus.PROPOSED, selected_by=user.id,
+        job_id=job_id,
+        product_id=data.product_id,
+        category=data.category,
+        area=data.area,
+        model_surface=data.model_surface,
+        swatch_url=swatch_url,
+        colour=colour,
+        colour_hex=colour_hex,
+        note=data.note,
+        status=SelectionStatus.PROPOSED,
+        selected_by=user.id,
     )
     db.add(selection)
     # Notify the client to review the proposed finish.
     if job.client_id:
         await notify(
-            db, [job.client_id], type="material.proposed",
+            db,
+            [job.client_id],
+            type="material.proposed",
             title=f"New material to review: {data.category.value.title()}",
-            body=data.area, deep_link=f"/jobs/{job_id}/materials",
+            body=data.area,
+            deep_link=f"/jobs/{job_id}/materials",
         )
     await write_audit(
-        db, actor_id=user.id, action="material.select", target_type="material_selection",
-        target_id=str(selection.id), job_id=job_id,
+        db,
+        actor_id=user.id,
+        action="material.select",
+        target_type="material_selection",
+        target_id=str(selection.id),
+        job_id=job_id,
         metadata={"category": data.category.value},
     )
     await db.commit()
@@ -150,9 +169,7 @@ async def decide_selection(
         raise NotFoundError("Selection not found.", code="selection_not_found")
     job = await get_job_or_404(db, selection.job_id)
     if client.id != job.client_id:
-        raise ForbiddenError(
-            "Only the job's client can approve materials.", code="client_only"
-        )
+        raise ForbiddenError("Only the job's client can approve materials.", code="client_only")
 
     selection.status = (
         SelectionStatus.APPROVED if data.approve else SelectionStatus.CHANGE_REQUESTED
@@ -160,13 +177,20 @@ async def decide_selection(
     if data.note:
         selection.note = data.note
     await notify(
-        db, [job.created_by], type="material.decision",
+        db,
+        [job.created_by],
+        type="material.decision",
         title=f"Client {'approved' if data.approve else 'requested a change to'} a material",
-        body=data.note, deep_link=f"/jobs/{job.id}/materials",
+        body=data.note,
+        deep_link=f"/jobs/{job.id}/materials",
     )
     await write_audit(
-        db, actor_id=client.id, action="material.decision",
-        target_type="material_selection", target_id=str(selection.id), job_id=job.id,
+        db,
+        actor_id=client.id,
+        action="material.decision",
+        target_type="material_selection",
+        target_id=str(selection.id),
+        job_id=job.id,
         metadata={"approved": data.approve},
     )
     await db.commit()
@@ -188,8 +212,12 @@ async def map_surface(
 
     selection.model_surface = model_surface
     await write_audit(
-        db, actor_id=user.id, action="material.map_surface",
-        target_type="material_selection", target_id=str(selection.id), job_id=job.id,
+        db,
+        actor_id=user.id,
+        action="material.map_surface",
+        target_type="material_selection",
+        target_id=str(selection.id),
+        job_id=job.id,
         metadata={"surface": model_surface},
     )
     await db.commit()

@@ -48,7 +48,7 @@ class AppTheme {
           color: isLight ? AppColors.textPrimary : scheme.onSurface,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0.5,
         color: isLight ? AppColors.surface : scheme.surface,
         shape: RoundedRectangleBorder(

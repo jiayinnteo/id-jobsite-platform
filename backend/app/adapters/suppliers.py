@@ -61,16 +61,31 @@ class EcoPlusVinyl(SupplierCatalogue):
         base = self.info.website_url
         return [
             CatalogueItem(
-                category=MaterialCategory.VINYL, name="Natural Oak", product_code="EP-V101",
-                colour="Warm Oak", colour_hex="#C8A27A", finish="Matte", source_url=base,
+                category=MaterialCategory.VINYL,
+                name="Natural Oak",
+                product_code="EP-V101",
+                colour="Warm Oak",
+                colour_hex="#C8A27A",
+                finish="Matte",
+                source_url=base,
             ),
             CatalogueItem(
-                category=MaterialCategory.VINYL, name="Smoked Walnut", product_code="EP-V204",
-                colour="Dark Walnut", colour_hex="#5B4636", finish="Textured", source_url=base,
+                category=MaterialCategory.VINYL,
+                name="Smoked Walnut",
+                product_code="EP-V204",
+                colour="Dark Walnut",
+                colour_hex="#5B4636",
+                finish="Textured",
+                source_url=base,
             ),
             CatalogueItem(
-                category=MaterialCategory.VINYL, name="Nordic Ash", product_code="EP-V310",
-                colour="Light Grey", colour_hex="#C9C6BF", finish="Matte", source_url=base,
+                category=MaterialCategory.VINYL,
+                name="Nordic Ash",
+                product_code="EP-V310",
+                colour="Light Grey",
+                colour_hex="#C9C6BF",
+                finish="Matte",
+                source_url=base,
             ),
         ]
 
@@ -89,17 +104,31 @@ class NipponPaint(SupplierCatalogue):
         base = self.info.website_url
         return [
             CatalogueItem(
-                category=MaterialCategory.PAINT, name="Vinilex", product_code="NP-OW1001P",
-                colour="Hog Bristle", colour_hex="#E7E0CF", finish="Matte", source_url=base,
+                category=MaterialCategory.PAINT,
+                name="Vinilex",
+                product_code="NP-OW1001P",
+                colour="Hog Bristle",
+                colour_hex="#E7E0CF",
+                finish="Matte",
+                source_url=base,
             ),
             CatalogueItem(
-                category=MaterialCategory.PAINT, name="Odour-less All-in-1",
-                product_code="NP-N1876P", colour="Misty Grey", colour_hex="#B9BBB6",
-                finish="Low Sheen", source_url=base,
+                category=MaterialCategory.PAINT,
+                name="Odour-less All-in-1",
+                product_code="NP-N1876P",
+                colour="Misty Grey",
+                colour_hex="#B9BBB6",
+                finish="Low Sheen",
+                source_url=base,
             ),
             CatalogueItem(
-                category=MaterialCategory.PAINT, name="Momento Textured", product_code="NP-SE05",
-                colour="Terra Clay", colour_hex="#C07A54", finish="Textured", source_url=base,
+                category=MaterialCategory.PAINT,
+                name="Momento Textured",
+                product_code="NP-SE05",
+                colour="Terra Clay",
+                colour_hex="#C07A54",
+                finish="Textured",
+                source_url=base,
             ),
         ]
 
@@ -118,12 +147,22 @@ class LamitakLaminate(SupplierCatalogue):
         base = self.info.website_url
         return [
             CatalogueItem(
-                category=MaterialCategory.LAMINATE, name="Fine Oak", product_code="LT-8812",
-                colour="Honey Oak", colour_hex="#CBA16B", finish="Woodgrain", source_url=base,
+                category=MaterialCategory.LAMINATE,
+                name="Fine Oak",
+                product_code="LT-8812",
+                colour="Honey Oak",
+                colour_hex="#CBA16B",
+                finish="Woodgrain",
+                source_url=base,
             ),
             CatalogueItem(
-                category=MaterialCategory.LAMINATE, name="Marble Carrara", product_code="LT-9901",
-                colour="White Marble", colour_hex="#EDEDEA", finish="Gloss", source_url=base,
+                category=MaterialCategory.LAMINATE,
+                name="Marble Carrara",
+                product_code="LT-9901",
+                colour="White Marble",
+                colour_hex="#EDEDEA",
+                finish="Gloss",
+                source_url=base,
             ),
         ]
 
@@ -142,12 +181,22 @@ class NiroTile(SupplierCatalogue):
         base = self.info.website_url
         return [
             CatalogueItem(
-                category=MaterialCategory.TILE, name="Grand Marble", product_code="NG-GM60",
-                colour="Statuario", colour_hex="#F0F0ED", finish="Polished", source_url=base,
+                category=MaterialCategory.TILE,
+                name="Grand Marble",
+                product_code="NG-GM60",
+                colour="Statuario",
+                colour_hex="#F0F0ED",
+                finish="Polished",
+                source_url=base,
             ),
             CatalogueItem(
-                category=MaterialCategory.TILE, name="Urban Concrete", product_code="NG-UC30",
-                colour="Mid Grey", colour_hex="#9A9A96", finish="Matte", source_url=base,
+                category=MaterialCategory.TILE,
+                name="Urban Concrete",
+                product_code="NG-UC30",
+                colour="Mid Grey",
+                colour_hex="#9A9A96",
+                finish="Matte",
+                source_url=base,
             ),
         ]
 
@@ -166,12 +215,22 @@ class HafaryWorktop(SupplierCatalogue):
         base = self.info.website_url
         return [
             CatalogueItem(
-                category=MaterialCategory.WORKTOP, name="Quartz Pure", product_code="HF-Q10",
-                colour="Pure White", colour_hex="#F4F4F2", finish="Honed", source_url=base,
+                category=MaterialCategory.WORKTOP,
+                name="Quartz Pure",
+                product_code="HF-Q10",
+                colour="Pure White",
+                colour_hex="#F4F4F2",
+                finish="Honed",
+                source_url=base,
             ),
             CatalogueItem(
-                category=MaterialCategory.WORKTOP, name="Sintered Stone", product_code="HF-SS22",
-                colour="Graphite", colour_hex="#3C3C3E", finish="Matte", source_url=base,
+                category=MaterialCategory.WORKTOP,
+                name="Sintered Stone",
+                product_code="HF-SS22",
+                colour="Graphite",
+                colour_hex="#3C3C3E",
+                finish="Matte",
+                source_url=base,
             ),
         ]
 

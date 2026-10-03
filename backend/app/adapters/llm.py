@@ -43,9 +43,7 @@ class ProviderLLM(LLMPort):
 
     async def draft_reply(self, *, context: str, last_message: str) -> str:
         # TODO: dispatch to the configured provider SDK using self._api_key.
-        return await self._fallback.draft_reply(
-            context=context, last_message=last_message
-        )
+        return await self._fallback.draft_reply(context=context, last_message=last_message)
 
 
 def get_llm() -> LLMPort:

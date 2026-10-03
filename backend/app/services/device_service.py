@@ -32,9 +32,7 @@ async def register_token(
 
 async def unregister_token(db: AsyncSession, user: User, token: str) -> None:
     await db.execute(
-        delete(DeviceToken).where(
-            DeviceToken.token == token, DeviceToken.user_id == user.id
-        )
+        delete(DeviceToken).where(DeviceToken.token == token, DeviceToken.user_id == user.id)
     )
     await db.commit()
 
@@ -44,9 +42,7 @@ async def tokens_for_users(
 ) -> dict[uuid.UUID, list[str]]:
     if not user_ids:
         return {}
-    rows = await db.scalars(
-        select(DeviceToken).where(DeviceToken.user_id.in_(set(user_ids)))
-    )
+    rows = await db.scalars(select(DeviceToken).where(DeviceToken.user_id.in_(set(user_ids))))
     out: dict[uuid.UUID, list[str]] = {}
     for row in rows.all():
         out.setdefault(row.user_id, []).append(row.token)
@@ -69,9 +65,7 @@ async def push_to_users(
     all_tokens = [t for toks in token_map.values() for t in toks]
     if not all_tokens:
         return
-    invalid = await push.send(
-        device_tokens=all_tokens, title=title, body=body, data=data
-    )
+    invalid = await push.send(device_tokens=all_tokens, title=title, body=body, data=data)
     if invalid:
         await db.execute(delete(DeviceToken).where(DeviceToken.token.in_(invalid)))
         await db.commit()

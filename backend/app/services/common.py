@@ -46,11 +46,7 @@ async def notify(
 ) -> None:
     recipients = {u for u in user_ids if u is not None}
     for uid in recipients:
-        db.add(
-            Notification(
-                user_id=uid, type=type, title=title, body=body, deep_link=deep_link
-            )
-        )
+        db.add(Notification(user_id=uid, type=type, title=title, body=body, deep_link=deep_link))
     # Fan out to registered devices too (no-op when FCM is not configured).
     # Imported lazily to avoid a circular import at module load.
     from app.services.device_service import push_to_users
@@ -73,9 +69,7 @@ async def get_job_or_404(db: AsyncSession, job_id: uuid.UUID) -> Job:
 
 async def is_job_member(db: AsyncSession, job_id: uuid.UUID, user_id: uuid.UUID) -> bool:
     member = await db.scalar(
-        select(JobMember).where(
-            JobMember.job_id == job_id, JobMember.user_id == user_id
-        )
+        select(JobMember).where(JobMember.job_id == job_id, JobMember.user_id == user_id)
     )
     return member is not None
 
@@ -85,11 +79,7 @@ async def authorize_job_access(db: AsyncSession, user: User, job: Job) -> None:
     the owning firm. Raises ForbiddenError otherwise."""
     if user.id == job.created_by or user.id == job.client_id:
         return
-    if (
-        user.role == UserRole.ID_BOSS
-        and job.firm_id is not None
-        and user.company_id == job.firm_id
-    ):
+    if user.role == UserRole.ID_BOSS and job.firm_id is not None and user.company_id == job.firm_id:
         return
     if await is_job_member(db, job.id, user.id):
         return

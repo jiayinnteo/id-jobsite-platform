@@ -42,12 +42,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(200), nullable=False)
-    role: Mapped[UserRole] = mapped_column(
-        SAEnum(UserRole, name="user_role"), nullable=False
-    )
+    role: Mapped[UserRole] = mapped_column(SAEnum(UserRole, name="user_role"), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    company_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("companies.id"), nullable=True
-    )
+    company_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("companies.id"), nullable=True)
 
     company: Mapped[Company | None] = relationship(back_populates="users")

@@ -32,9 +32,7 @@ class Job(Base):
         ForeignKey("companies.id"), nullable=True, index=True
     )
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
-    client_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id"), nullable=True
-    )
+    client_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     members: Mapped[list["JobMember"]] = relationship(
         back_populates="job", cascade="all, delete-orphan"

@@ -98,6 +98,7 @@ async def decide(
 
 # --- Photos ---
 
+
 @job_defects_router.post(
     "/{job_id}/photos", response_model=PhotoUploadTarget, status_code=status.HTTP_201_CREATED
 )

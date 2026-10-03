@@ -26,9 +26,7 @@ class SiteVisit(Base):
     rectification_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("rectifications.id", ondelete="SET NULL"), nullable=True
     )
-    contractor_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id"), nullable=False
-    )
+    contractor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     scheduled_date: Mapped[date] = mapped_column(Date, nullable=False)
     scheduled_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     status: Mapped[VisitStatus] = mapped_column(
@@ -45,9 +43,7 @@ class SiteVisit(Base):
 
 class VisitWorker(Base):
     __tablename__ = "visit_workers"
-    __table_args__ = (
-        UniqueConstraint("site_visit_id", "worker_id", name="uq_visit_worker"),
-    )
+    __table_args__ = (UniqueConstraint("site_visit_id", "worker_id", name="uq_visit_worker"),)
 
     site_visit_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("site_visits.id", ondelete="CASCADE"), nullable=False, index=True
@@ -77,15 +73,11 @@ class CalendarEventLink(Base):
 
     __tablename__ = "calendar_event_links"
     __table_args__ = (
-        UniqueConstraint(
-            "entity_type", "entity_id", "user_id", name="uq_cal_event_link"
-        ),
+        UniqueConstraint("entity_type", "entity_id", "user_id", name="uq_cal_event_link"),
     )
 
     entity_type: Mapped[str] = mapped_column(String(40), nullable=False)  # site_visit
     entity_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     google_event_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    last_synced_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

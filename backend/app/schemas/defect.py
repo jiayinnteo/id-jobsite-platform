@@ -64,6 +64,7 @@ class RectificationOut(BaseModel):
 
 # --- Photos ---
 
+
 class PhotoCreate(BaseModel):
     filename: str = Field(min_length=1, max_length=200)
     mime_type: str

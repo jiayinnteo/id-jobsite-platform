@@ -86,16 +86,12 @@ class Rectification(Base):
     defect_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("defects.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    contractor_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id"), nullable=True
-    )
+    contractor_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     # Set once the client decides.
     decision: Mapped[RectificationDecision | None] = mapped_column(
         SAEnum(RectificationDecision, name="rectification_decision"), nullable=True
     )
-    decided_by: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id"), nullable=True
-    )
+    decided_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 

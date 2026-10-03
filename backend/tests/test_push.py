@@ -9,9 +9,7 @@ from app.adapters.push import FcmPush, MockPush, get_push
 async def test_mock_push_disabled_and_noop():
     push = MockPush()
     assert push.enabled is False
-    invalid = await push.send(
-        device_tokens=["t1", "t2"], title="Hi", body="there"
-    )
+    invalid = await push.send(device_tokens=["t1", "t2"], title="Hi", body="there")
     assert invalid == []  # nothing invalidated in mock mode
 
 
