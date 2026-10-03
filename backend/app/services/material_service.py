@@ -109,16 +109,18 @@ async def create_selection(
 
     colour = data.colour
     colour_hex = data.colour_hex
-    # If a catalogue product is chosen, default colour from it.
+    swatch_url = None
+    # If a catalogue product is chosen, default colour + texture from it.
     if data.product_id:
         product = await db.get(MaterialProduct, data.product_id)
         if product:
             colour = colour or product.colour
             colour_hex = colour_hex or product.colour_hex
+            swatch_url = product.swatch_url
 
     selection = MaterialSelection(
         job_id=job_id, product_id=data.product_id, category=data.category,
-        area=data.area, model_surface=data.model_surface,
+        area=data.area, model_surface=data.model_surface, swatch_url=swatch_url,
         colour=colour, colour_hex=colour_hex, note=data.note,
         status=SelectionStatus.PROPOSED, selected_by=user.id,
     )

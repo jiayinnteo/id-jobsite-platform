@@ -223,6 +223,7 @@ class _Model3dTabState extends ConsumerState<_Model3dTab> {
                     .map((m) => SurfacePreview(
                           surface: m['model_surface']?.toString() ?? '',
                           colourHex: m['colour_hex'] as String?,
+                          swatchUrl: m['swatch_url'] as String?,
                           label: m['colour'] as String?,
                         ))
                     .where((p) => p.surface.isNotEmpty)

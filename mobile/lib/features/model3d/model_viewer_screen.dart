@@ -4,15 +4,18 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 import '../../widgets/colour_swatch.dart';
 import '../../widgets/states.dart';
 
-/// A surface→colour mapping applied to the 3D model for material preview.
+/// A surface→material mapping applied to the 3D model for preview.
+/// Uses a tiled [swatchUrl] texture when available, else a flat [colourHex].
 class SurfacePreview {
   const SurfacePreview({
     required this.surface,
     required this.colourHex,
+    this.swatchUrl,
     this.label,
   });
   final String surface;
   final String? colourHex;
+  final String? swatchUrl;
   final String? label;
 }
 
@@ -31,23 +34,36 @@ List<double>? _rgbaFactor(String? hex) {
 String _previewJs(List<SurfacePreview> previews) {
   final entries = <String>[];
   for (final p in previews) {
+    final surface = p.surface.replaceAll("'", "").toLowerCase();
+    if (surface.isEmpty) continue;
     final rgba = _rgbaFactor(p.colourHex);
-    if (rgba == null) continue;
-    final surface = p.surface.replaceAll("'", "");
-    entries.add("{s:'${surface.toLowerCase()}',c:[${rgba.join(',')}]}");
+    final tex = (p.swatchUrl != null && p.swatchUrl!.startsWith('http'))
+        ? "'${p.swatchUrl!.replaceAll("'", "")}'"
+        : 'null';
+    final colour = rgba != null ? '[${rgba.join(',')}]' : 'null';
+    entries.add("{s:'$surface',c:$colour,t:$tex}");
   }
   if (entries.isEmpty) return '';
   return '''
 const mv = document.querySelector('model-viewer');
-function applyPreview() {
+async function applyPreview() {
   const map = [${entries.join(',')}];
   if (!mv.model) return;
   for (const mat of mv.model.materials) {
     const name = (mat.name || '').toLowerCase();
     for (const m of map) {
-      if (name === m.s || name.includes(m.s)) {
-        try { mat.pbrMetallicRoughness.setBaseColorFactor(m.c); } catch (e) {}
-      }
+      if (name !== m.s && !name.includes(m.s)) continue;
+      try {
+        if (m.t) {
+          // Photorealistic preview: tile the material swatch image.
+          const texture = await mv.createTexture(m.t);
+          mat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+          if (m.c) mat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,1]);
+        } else if (m.c) {
+          // Fallback: flat base colour (paints / solid finishes).
+          mat.pbrMetallicRoughness.setBaseColorFactor(m.c);
+        }
+      } catch (e) {}
     }
   }
 }

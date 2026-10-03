@@ -112,6 +112,7 @@ async def preview_materials(
             model_surface=s.model_surface,
             colour_hex=s.colour_hex,
             colour=s.colour,
+            swatch_url=s.swatch_url,
             category=s.category,
             status=s.status,
         )

@@ -50,12 +50,13 @@ class SurfaceMapUpdate(BaseModel):
 
 
 class PreviewMaterial(BaseModel):
-    """A surface→colour mapping the 3D viewer applies to the model."""
+    """A surface→colour/texture mapping the 3D viewer applies to the model."""
 
     selection_id: uuid.UUID
     model_surface: str
     colour_hex: str | None
     colour: str | None
+    swatch_url: str | None
     category: MaterialCategory
     status: SelectionStatus
 

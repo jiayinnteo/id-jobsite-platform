@@ -82,6 +82,8 @@ class MaterialSelection(Base):
     area: Mapped[str | None] = mapped_column(String(160), nullable=True)  # e.g. "Living room floor"
     # Name of the glTF/GLB material/mesh this selection maps to, for 3D preview.
     model_surface: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    # Texture image used for photorealistic preview (tiled on the surface).
+    swatch_url: Mapped[str | None] = mapped_column(String(600), nullable=True)
     colour: Mapped[str | None] = mapped_column(String(120), nullable=True)
     colour_hex: Mapped[str | None] = mapped_column(String(9), nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
