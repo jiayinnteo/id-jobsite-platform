@@ -7,8 +7,8 @@ platform for a Singapore-based interior design (ID) company. The platform helps
 interior designers manage job sites and coordinate clearly with both clients and
 contractors, reducing miscommunication across the renovation lifecycle.
 
-The system serves four roles — **Interior Designer (ID)**, **Client**,
-**Contractor (company boss)**, and **Worker** — and provides shared project
+The system serves five roles — **ID Company Boss (ID_BOSS)**, **Interior Designer
+(ID)**, **Client**, **Contractor (company boss)**, and **Worker** — and provides shared project
 artifacts (quotations, 2D/3D drawings, schedules), a defect tracking and
 rectification workflow with explicit client accept/reject, site-photo capture for
 all parties, bidirectional Google Calendar sync, a first-class in-app chat, and an
@@ -28,6 +28,7 @@ or over WhatsApp.
 ---
 
 ## Glossary
+- **ID_BOSS**: ID Company Boss — oversees all jobs run by their ID firm.
 - **ID**: Interior Designer — primary operator of the platform.
 - **Job / Project**: A renovation engagement for one client at one site.
 - **Defect**: An issue raised against a job that needs rectification.
@@ -44,7 +45,7 @@ or over WhatsApp.
 my role permits, so that project data stays confidential and relevant.
 
 #### Acceptance Criteria
-1. WHEN a new user registers THEN the system SHALL create an account with exactly one of the roles: ID, Client, Contractor, Worker.
+1. WHEN a new user registers THEN the system SHALL create an account with exactly one of the roles: ID_BOSS, ID, Client, Contractor, Worker.
 2. WHEN a user authenticates with valid credentials THEN the system SHALL issue a time-limited access token and a refresh token.
 3. IF a user presents an expired access token WHEN calling an API THEN the system SHALL reject the request with HTTP 401.
 4. WHEN a user accesses a resource THEN the system SHALL authorize the request against the user's role and their membership in the related job.
@@ -204,3 +205,27 @@ confusion.
 5. THE SYSTEM SHALL meet accessibility basics: minimum tap-target size, WCAG AA text contrast, and support for the device's text-scaling setting.
 6. THE SYSTEM SHALL support both light and dark themes derived from the same warm palette.
 7. WHERE actions have consequences (reject, delete, send) THE SYSTEM SHALL use clear, human-friendly copy and confirm destructive actions.
+
+### Requirement 15 — ID Company Boss Oversight & Job Review
+**User Story:** As the ID company boss, I want to review and oversee any job run by
+my firm when necessary, so that I can keep quality high and step in when needed.
+
+#### Acceptance Criteria
+1. WHEN an ID_BOSS opens the app THEN the system SHALL list all jobs belonging to their ID firm, not only jobs they personally created.
+2. WHEN an ID_BOSS opens any job in their firm THEN the system SHALL grant read access to that job's documents, defects, rectifications, schedule, photos, and conversation.
+3. WHEN an ID_BOSS reviews a job THEN the system SHALL allow them to record an internal oversight review note (status flag such as Needs Attention / Approved) visible to the firm's IDs but not to clients, contractors, or workers.
+4. WHEN an ID_BOSS adds an oversight review THEN the system SHALL notify the ID assigned to that job.
+5. WHERE a user belongs to a different firm OR is not an ID_BOSS THE SYSTEM SHALL NOT grant firm-wide oversight access (HTTP 403).
+6. WHERE an ID_BOSS performs an action THE SYSTEM SHALL record it in the audit log like any other actor.
+
+### Requirement 16 — Client Reviews & Ratings
+**User Story:** As a client, I want to leave a review of the completed work, so that
+I can share feedback and the ID firm can showcase its service quality.
+
+#### Acceptance Criteria
+1. WHERE a job is Completed THE SYSTEM SHALL allow the job's client to submit a review with a star rating (1–5) and an optional comment.
+2. WHEN a client submits a review THEN the system SHALL record the rating, comment, author, and timestamp, and notify the ID and ID_BOSS.
+3. WHEN a client has already reviewed a job THEN the system SHALL allow them to edit their existing review rather than create a duplicate.
+4. WHEN any firm member (ID, ID_BOSS) views a reviewed job THEN the system SHALL display the review with a visible "Reviewed" tag and the rating.
+5. WHERE a user is not the job's client THE SYSTEM SHALL NOT allow submitting or editing that job's review (HTTP 403).
+6. WHERE reviews exist THE SYSTEM SHALL expose an aggregate average rating per ID and per firm for display.

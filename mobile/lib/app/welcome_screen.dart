@@ -53,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
               for (final role in UserRole.values) ...[
                 AppButton(
                   label: role.label,
-                  kind: role == UserRole.id
+                  kind: role == UserRole.idBoss
                       ? AppButtonKind.primary
                       : AppButtonKind.secondary,
                   onPressed: () => context.go('/home/${role.name}'),

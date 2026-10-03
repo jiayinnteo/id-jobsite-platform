@@ -46,19 +46,21 @@ behind mockable adapters.
 
 ## Phase 2 — Jobs & Documents
 
-- [ ] 8. Job management API + services
+- [ ] 8. Job management API + services (incl. ID_BOSS oversight)
   - Create/list/get/update job; add members; status transitions; audit entries.
-  - Enforce ID-only create/delete.
-  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 13.1_
+  - Enforce ID-only create/delete; `firm_id` on jobs.
+  - ID_BOSS firm-wide job list + read access; internal oversight reviews (flag + note) that notify the assigned ID and are hidden from client/contractor/worker.
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 13.1, 15.1, 15.2, 15.3, 15.4, 15.5, 15.6_
 
 - [ ] 9. StoragePort + document/version management
   - `StoragePort` with S3 and Mock impls; pre-signed upload/download URLs.
   - Upload quotation (xlsx/pdf), 2D/3D drawings, schedule; versioning; type/size validation.
   - _Requirements: 3.1, 3.2, 3.4, 3.5, 3.6, 13.4_
 
-- [ ] 10. Flutter jobs + document screens
+- [ ] 10. Flutter jobs + document screens (+ boss oversight UI)
   - Job list/detail; participant management (ID); document upload & viewer/download for clients.
-  - _Requirements: 2.3, 3.3_
+  - ID_BOSS firm-wide job overview + a "Review job" action to flag Needs Attention / Approved with a note.
+  - _Requirements: 2.3, 3.3, 15.1, 15.3_
 
 ## Phase 3 — Defects, Rectification & Photos (core differentiator)
 
@@ -79,6 +81,11 @@ behind mockable adapters.
 - [ ] 14. Flutter defect + photo + accept/reject UI
   - Defect create with camera capture; defect detail w/ history & photos; Accept/Reject buttons; job photo gallery.
   - _Requirements: 4.1, 4.6, 5.1, 5.2, 5.3, 7.1, 7.3_
+
+- [ ] 14b. Client reviews & ratings (API + Flutter)
+  - On Completed jobs: client submits/edits a star rating (1–5) + comment; notify ID & ID_BOSS; client-only write (403 otherwise).
+  - Firm views show a "Reviewed" tag + rating; aggregate average per ID and per firm.
+  - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6_
 
 ## Phase 4 — Scheduling & Contractor Workflow
 

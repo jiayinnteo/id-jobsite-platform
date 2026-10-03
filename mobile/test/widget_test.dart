@@ -22,7 +22,7 @@ Widget _wrap(Widget child) {
 }
 
 void main() {
-  testWidgets('Welcome screen shows all four roles', (tester) async {
+  testWidgets('Welcome screen shows all roles', (tester) async {
     await tester.pumpWidget(_wrap(const WelcomeScreen()));
     await tester.pumpAndSettle();
 
@@ -39,5 +39,20 @@ void main() {
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.text('Jobs'), findsWidgets);
     expect(find.text('AI Inbox'), findsOneWidget);
+  });
+
+  testWidgets('ID_BOSS shell exposes firm oversight + reviews', (tester) async {
+    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.idBoss)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Firm Jobs'), findsWidgets);
+    expect(find.text('Reviews'), findsWidgets);
+  });
+
+  testWidgets('Client shell exposes a Review entry point', (tester) async {
+    await tester.pumpWidget(_wrap(const HomeShell(role: UserRole.client)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Review'), findsWidgets);
   });
 }

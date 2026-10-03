@@ -25,6 +25,16 @@ class _HomeShellState extends State<HomeShell> {
 
   List<NavDest> get _destinations {
     switch (widget.role) {
+      case UserRole.idBoss:
+        return const [
+          NavDest(Icons.insights_outlined, 'Overview', _Placeholder('Firm Overview')),
+          NavDest(Icons.folder_open_outlined, 'Firm Jobs',
+              _Placeholder('All firm jobs — tap a job to review (Needs Attention / Approved)')),
+          NavDest(Icons.reviews_outlined, 'Reviews',
+              _Placeholder('Client reviews & average ratings')),
+          NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
+          NavDest(Icons.notifications_none, 'Alerts', _Placeholder('Notifications')),
+        ];
       case UserRole.id:
         return const [
           NavDest(Icons.home_outlined, 'Home', _Placeholder('ID Dashboard')),
@@ -38,8 +48,9 @@ class _HomeShellState extends State<HomeShell> {
           NavDest(Icons.home_outlined, 'Home', _Placeholder('Client Dashboard')),
           NavDest(Icons.description_outlined, 'Project', _Placeholder('Documents & Drawings')),
           NavDest(Icons.report_problem_outlined, 'Defects', _Placeholder('Defects')),
+          NavDest(Icons.star_outline, 'Review',
+              _Placeholder('Leave a review for completed jobs (rating + comment)')),
           NavDest(Icons.chat_bubble_outline, 'Chat', _Placeholder('Chat')),
-          NavDest(Icons.notifications_none, 'Alerts', _Placeholder('Notifications')),
         ];
       case UserRole.contractor:
         return const [
